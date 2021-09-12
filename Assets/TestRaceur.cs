@@ -24,7 +24,7 @@ public class TestRaceur : Raceur
 			agent.updatePosition = false;
 			agent.updateRotation = false;
 			agent.SetDestination(Circuit.Waypoint(nextWaypoint));
-			pathIndex = 0;
+			//pathIndex = 0;
 		}
 		base.Update();
     }

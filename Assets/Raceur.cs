@@ -13,19 +13,11 @@ public class Raceur : MonoBehaviour, IComparable
 	protected NavMeshAgent agent;
 	protected bool handlingCollision = false;
 	protected bool started=false;
-	protected int pathIndex = 0;
-	protected NavMeshPath path; 
-	protected Vector3 destination;
     // Start is called before the first frame update
     protected virtual void ActualStart()
     {
 		agent = GetComponent<NavMeshAgent>();
-		agent.updatePosition = false;
-		agent.updateRotation = false;
-		path = new NavMeshPath();
-		destination = Circuit.Waypoint(nextWaypoint);
-		pathIndex=0;
-        agent.CalculatePath(destination,path);
+        agent.SetDestination(Circuit.Waypoint(nextWaypoint));
     }
 
     // Update is called once per frame
@@ -40,7 +32,6 @@ public class Raceur : MonoBehaviour, IComparable
 				return;
 			}
 		}
-		Advance();
         CheckPosition();
     }
     
@@ -56,7 +47,28 @@ public class Raceur : MonoBehaviour, IComparable
 		
 		agent.speed = 7f;
 		
+		/*
+		if(agent.pathPending) {
+			return;
+		}
+		int finalPt=agent.path.corners.Length-1;
+		if(finalPt > -1) {
+			if((transform.position - agent.path.corners[finalPt]).magnitude >= agent.stoppingDistance) {
+				return;
+			}
+		}
+		else {
+			if((transform.position - agent.destination).magnitude >= agent.stoppingDistance) {
+				return;
+			}
+		}
+		Debug.Log("Waypoint hit");
+		Debug.Break();
+		curWaypoint=nextWaypoint;
+		nextWaypoint++;
 		
+		HandleWaypointChange();
+		*/
 		
 	}
 	
@@ -82,18 +94,12 @@ public class Raceur : MonoBehaviour, IComparable
 				return;
 			}
 		}
-		
 		//if we're in the lead, aim at the next waypoint
 		nextWaypoint = GetNextWaypoint(curWaypoint);
 		Debug.Log("starting :"+name+":"+curWaypoint+" "+nextWaypoint);
 		CheckPosition();
 		Debug.Log("ending :"+name+":"+curWaypoint+" "+nextWaypoint);
-		pathIndex = 0;
-		path.ClearCorners();
-		//path.status = NavMeshPathStatus.PathInvalid;
-		destination =Circuit.Waypoint(nextWaypoint-1);
-		Debug.Log("Where to:"+destination.ToString("F2"));
-		agent.CalculatePath(destination,path);
+		agent.SetDestination(Circuit.Waypoint(nextWaypoint-1));
 	}
 	
 	public int GetWaypoint() {
@@ -117,10 +123,10 @@ public class Raceur : MonoBehaviour, IComparable
 	void OnTriggerEnter(Collider other) {
 		int hitWaypoint = Array.IndexOf(Circuit.instance.turns,other.transform)+1;
 		if(AlreadyThere(hitWaypoint)) {
-			Debug.Log(name+":curWaypoint:"+curWaypoint+"; hitWaypoint:"+hitWaypoint);
 			return;
 		}
 		
+		Debug.Log(name+":curWaypoint:"+curWaypoint+"; hitWaypoint:"+hitWaypoint);
 		curWaypoint = hitWaypoint;
 		
 		HandleWaypointChange();
@@ -141,7 +147,7 @@ public class Raceur : MonoBehaviour, IComparable
 		if(waypoint == 0 && curWaypoint >= Circuit.instance.turns.Length-1) {
 			return false;
 		}
-		return(waypoint ==curWaypoint);
+		return(waypoint <=curWaypoint);
 	}
 	
 	int GetNextWaypoint(int waypoint) {
@@ -155,54 +161,4 @@ public class Raceur : MonoBehaviour, IComparable
 	void DoShutdown() {
 		Debug.Break();
 	}
-	
-	void Advance() {
-		
-		if(path.status == NavMeshPathStatus.PathInvalid) {
-			return;
-		}
-		
-		Vector3 diff;
-		if(pathIndex  < path.corners.Length)
-		{
-			diff  = path.corners[pathIndex] - transform.position;
-		}
-		else {
-			diff = destination-transform.position;
-		}
-		
-		diff.y = 0;
-		if(diff.magnitude >= agent.stoppingDistance) {
-			if(nextWaypoint == 2) {
-				Debug.Log("dTheta:"+Mathf.Atan2(diff.x,diff.z)*Mathf.Rad2Deg); //temp:90-atan2
-			}
-			transform.forward = diff.normalized;
-			GetComponent<Rigidbody>().velocity = transform.forward*agent.speed;
-			return;
-		}
-		pathIndex++;
-		
-		
-		/*
-		int finalPt=agent.path.corners.Length-1;
-		if(finalPt > -1) {
-			if((transform.position - agent.path.corners[finalPt]).magnitude >= agent.stoppingDistance) {
-				return;
-			}
-		}
-		else {
-			if((transform.position - agent.destination).magnitude >= agent.stoppingDistance) {
-				return;
-			}
-		}
-		Debug.Log("Waypoint hit");
-		Debug.Break();
-		curWaypoint=nextWaypoint;
-		nextWaypoint++;
-		
-		HandleWaypointChange();
-		*/
-		
-	}
-		
 }
