@@ -106,15 +106,15 @@ NavMeshSettings:
   m_BuildSettings:
     serializedVersion: 2
     agentTypeID: 0
-    agentRadius: 0.5
+    agentRadius: 0.25
     agentHeight: 1
-    agentSlope: 45
-    agentClimb: 0.4
+    agentSlope: 36
+    agentClimb: 0.5
     ledgeDropHeight: 0
     maxJumpAcrossDistance: 0
     minRegionArea: 2
     manualCellSize: 0
-    cellSize: 0.16666667
+    cellSize: 0.083333336
     manualTileSize: 0
     tileSize: 256
     accuratePlacement: 0
@@ -122,7 +122,7 @@ NavMeshSettings:
     preserveTilesOutsideBounds: 0
     debug:
       m_Flags: 0
-  m_NavMeshData: {fileID: 23800000, guid: b80830511ecd160cfb72d596fc3af3fa, type: 2}
+  m_NavMeshData: {fileID: 23800000, guid: 6a2446cd5bdfc03f7ba7892b14a73df9, type: 2}
 --- !u!1 &95016261
 GameObject:
   m_ObjectHideFlags: 0
@@ -374,8 +374,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 603225767}
-  m_LocalRotation: {x: 0.06967664, y: 0.70366555, z: -0.06967664, w: 0.70366555}
-  m_LocalPosition: {x: 214, y: 0.51600003, z: 251.86}
+  m_LocalRotation: {x: 0.06967662, y: 0.70366555, z: -0.06967662, w: 0.70366555}
+  m_LocalPosition: {x: 214, y: 0.525, z: 252.46}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -866,7 +866,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!208 &1130566303
 NavMeshObstacle:
   m_ObjectHideFlags: 0
@@ -1442,8 +1442,8 @@ MonoBehaviour:
   m_StreamingVersion: 20170927
   m_Priority: 10
   m_StandbyUpdate: 2
-  m_LookAt: {fileID: 1130566307}
-  m_Follow: {fileID: 1130566307}
+  m_LookAt: {fileID: 1848535124}
+  m_Follow: {fileID: 1848535124}
   m_Lens:
     FieldOfView: 33
     OrthographicSize: 5
@@ -1466,8 +1466,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1556780680}
-  m_LocalRotation: {x: 0.06967664, y: 0.70366555, z: -0.06967664, w: 0.70366555}
-  m_LocalPosition: {x: 214, y: 0.51600003, z: 251.86}
+  m_LocalRotation: {x: 0.06967662, y: 0.70366555, z: -0.06967662, w: 0.70366555}
+  m_LocalPosition: {x: 214, y: 0.525, z: 252.46}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1427503934}
