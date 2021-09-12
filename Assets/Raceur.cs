@@ -10,7 +10,7 @@ public class Raceur : MonoBehaviour, IComparable
 	public int laps = 0;
 	protected int nextWaypoint = 0;
 	protected int curWaypoint =0;
-	private NavMeshAgent agent;
+	protected NavMeshAgent agent;
 	protected bool handlingCollision = false;
 	protected bool started=false;
     // Start is called before the first frame update
@@ -39,10 +39,9 @@ public class Raceur : MonoBehaviour, IComparable
 		Raceur ahead = Circuit.InFrontOf(this);
 		
 		if(ahead != null) {
-			nextWaypoint=Mathf.Min(ahead.GetWaypoint()+1,Circuit.instance.turns.Length-1);
+			nextWaypoint=Mathf.Max(nextWaypoint,Mathf.Min(GetNextWaypoint(ahead.GetWaypoint()),Circuit.instance.turns.Length-1));
 			
 			agent.speed = topSpeed;
-			HandleWaypointChange();
 			return;
 		}
 		
@@ -74,7 +73,7 @@ public class Raceur : MonoBehaviour, IComparable
 	}
 	
 	void HandleWaypointChange() {
-		
+		/*
 		if(curWaypoint < Circuit.instance.turns.Length) {
 			agent.SetDestination(Circuit.Waypoint(nextWaypoint));
 			return;
@@ -86,6 +85,21 @@ public class Raceur : MonoBehaviour, IComparable
 			return;
 		}
 		Debug.Break();
+		*/
+		if(curWaypoint >= Circuit.instance.turns.Length) {
+			laps++;
+			
+			if(laps == 2) {
+				DoShutdown();
+				return;
+			}
+		}
+		//if we're in the lead, aim at the next waypoint
+		nextWaypoint = GetNextWaypoint(curWaypoint);
+		Debug.Log("starting :"+name+":"+curWaypoint+" "+nextWaypoint);
+		CheckPosition();
+		Debug.Log("ending :"+name+":"+curWaypoint+" "+nextWaypoint);
+		agent.SetDestination(Circuit.Waypoint(nextWaypoint-1));
 	}
 	
 	public int GetWaypoint() {
@@ -93,10 +107,9 @@ public class Raceur : MonoBehaviour, IComparable
 	}
 	
 	public int CompareTo (object obj) {
-		int myWaypoint = nextWaypoint+laps*Circuit.instance.turns.Length;
+		int myWaypoint = (GetWaypoint()-1)+laps*Circuit.instance.turns.Length;
 		Raceur him = (obj as Raceur);
-		int hisWaypoint = him.GetWaypoint()+him.laps*Circuit.instance.turns.Length;
-		//Debug.Log(gameObject.name+":"+myWaypoint+" vs "+him.gameObject.name+":"+hisWaypoint);
+		int hisWaypoint = (him.GetWaypoint()-1)+him.laps*Circuit.instance.turns.Length;
 		if(myWaypoint > hisWaypoint) {
 			return -1;
 		}
@@ -107,12 +120,17 @@ public class Raceur : MonoBehaviour, IComparable
 			
 	}
 	
-	void OnTriggerExit(Collider other) {
+	void OnTriggerEnter(Collider other) {
 		int hitWaypoint = Array.IndexOf(Circuit.instance.turns,other.transform)+1;
-		if(hitWaypoint >curWaypoint) {
-			curWaypoint = hitWaypoint;
+		if(AlreadyThere(hitWaypoint)) {
+			Debug.Log(name+":curWaypoint:"+curWaypoint+"; hitWaypoint:"+hitWaypoint);
+			return;
 		}
+		
+		curWaypoint = hitWaypoint;
+		
 		HandleWaypointChange();
+		/*
 		if(hitWaypoint <= nextWaypoint) {
 			return;
 		}
@@ -122,5 +140,25 @@ public class Raceur : MonoBehaviour, IComparable
 		nextWaypoint = hitWaypoint;
 		
 		HandleWaypointChange();
+		*/
+	}
+	
+	bool AlreadyThere(int waypoint) {
+		if(waypoint == 0 && curWaypoint >= Circuit.instance.turns.Length-1) {
+			return false;
+		}
+		return(waypoint ==curWaypoint);
+	}
+	
+	int GetNextWaypoint(int waypoint) {
+		int rv = waypoint+1;
+		if(rv > Circuit.instance.turns.Length) {
+			return 1;
+		}
+		return rv;
+	}
+	
+	void DoShutdown() {
+		Debug.Break();
 	}
 }
