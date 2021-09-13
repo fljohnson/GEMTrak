@@ -21,10 +21,7 @@ public class TestRaceur : Raceur
 		}
 		if(agent == null) {
 			agent = GetComponent<NavMeshAgent>();
-			agent.updatePosition = false;
-			agent.updateRotation = false;
 			agent.SetDestination(Circuit.Waypoint(nextWaypoint));
-			//pathIndex = 0;
 		}
 		base.Update();
     }

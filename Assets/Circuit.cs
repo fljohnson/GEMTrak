@@ -31,9 +31,9 @@ public class Circuit : MonoBehaviour
 		int posn = Array.IndexOf(instance.field,inquirer);
 		
 		//eliminate the ties
-		while(posn > 0 && instance.field[posn].GetWaypoint() == instance.field[posn-1].GetWaypoint()) {
+		/*while(posn > 0 && instance.field[posn].GetWaypoint() == instance.field[posn-1].GetWaypoint()) {
 			posn--;
-		}
+		}*/
 		
 		if(posn == 0) {
 			return null;

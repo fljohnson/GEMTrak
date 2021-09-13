@@ -39,8 +39,11 @@ public class Raceur : MonoBehaviour, IComparable
 		Raceur ahead = Circuit.InFrontOf(this);
 		
 		if(ahead != null) {
-			nextWaypoint=Mathf.Max(nextWaypoint,Mathf.Min(GetNextWaypoint(ahead.GetWaypoint()),Circuit.instance.turns.Length-1));
-			
+			//TODO:if the Waypoint just ahead of the Racer ahead of us is closer than where we were headed anyway, do nothing
+			//in theory, this shouldn't even be an issue - may have cropped up earlier due to not enough Waypoints
+			//nextWaypoint = Mathf.Min(GetNextWaypoint(ahead.GetWaypoint()),Circuit.instance.turns.Length-1);
+			//nextWaypoint=Mathf.Max(nextWaypoint,possible);
+			nextWaypoint = GetNextWaypoint(ahead.GetWaypoint());
 			agent.speed = topSpeed;
 			return;
 		}
