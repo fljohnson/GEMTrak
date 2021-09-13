@@ -88,7 +88,8 @@ public class Raceur : MonoBehaviour, IComparable
 		*/
 		if(curWaypoint >= Circuit.instance.turns.Length) {
 			laps++;
-			
+			Debug.Log(name+":Lap "+laps+" completed");
+			curWaypoint = 0;
 			if(laps == 2) {
 				DoShutdown();
 				return;
@@ -96,9 +97,9 @@ public class Raceur : MonoBehaviour, IComparable
 		}
 		//if we're in the lead, aim at the next waypoint
 		nextWaypoint = GetNextWaypoint(curWaypoint);
-		Debug.Log("starting :"+name+":"+curWaypoint+" "+nextWaypoint);
+	//	Debug.Log("starting :"+name+":"+curWaypoint+" "+nextWaypoint);
 		CheckPosition();
-		Debug.Log("ending :"+name+":"+curWaypoint+" "+nextWaypoint);
+		//Debug.Log("ending :"+name+":"+curWaypoint+" "+nextWaypoint);
 		agent.SetDestination(Circuit.Waypoint(nextWaypoint-1));
 	}
 	
@@ -146,6 +147,9 @@ public class Raceur : MonoBehaviour, IComparable
 	bool AlreadyThere(int waypoint) {
 		if(waypoint == 0 && curWaypoint >= Circuit.instance.turns.Length-1) {
 			return false;
+		}
+		if(curWaypoint == 0 && waypoint >= Circuit.instance.turns.Length-1) {
+			return true;
 		}
 		return(waypoint <=curWaypoint);
 	}
