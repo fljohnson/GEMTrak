@@ -1177,7 +1177,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &779978245
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1534,30 +1534,14 @@ GameObject:
   - component: {fileID: 1130566306}
   - component: {fileID: 1130566305}
   - component: {fileID: 1130566304}
-  - component: {fileID: 1130566303}
+  - component: {fileID: 1130566308}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!208 &1130566303
-NavMeshObstacle:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1130566302}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Shape: 1
-  m_Extents: {x: 0.1, y: 0.1, z: 0.1}
-  m_MoveThreshold: 0.1
-  m_Carve: 1
-  m_CarveOnlyStationary: 0
-  m_Center: {x: 0, y: 0.04, z: 0}
-  m_TimeToStationary: 0.5
+  m_IsActive: 1
 --- !u!54 &1130566304
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1620,6 +1604,28 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
+--- !u!195 &1130566308
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1130566302}
+  m_Enabled: 1
+  m_AgentTypeID: 0
+  m_Radius: 0.18
+  m_Speed: 2
+  m_Acceleration: 6
+  avoidancePriority: 50
+  m_AngularSpeed: 45
+  m_StoppingDistance: 3
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 0
+  m_AutoRepath: 1
+  m_Height: 0.1
+  m_BaseOffset: 0.1
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 4
 --- !u!1 &1141045784
 GameObject:
   m_ObjectHideFlags: 0
@@ -2205,8 +2211,8 @@ MonoBehaviour:
   m_StreamingVersion: 20170927
   m_Priority: 10
   m_StandbyUpdate: 2
-  m_LookAt: {fileID: 779978247}
-  m_Follow: {fileID: 779978247}
+  m_LookAt: {fileID: 1130566307}
+  m_Follow: {fileID: 1130566307}
   m_Lens:
     FieldOfView: 33
     OrthographicSize: 5
@@ -2368,7 +2374,7 @@ NavMeshAgent:
   m_GameObject: {fileID: 1848535121}
   m_Enabled: 1
   m_AgentTypeID: 0
-  m_Radius: 0.5
+  m_Radius: 0.18
   m_Speed: 2
   m_Acceleration: 6
   avoidancePriority: 50
