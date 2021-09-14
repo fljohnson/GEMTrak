@@ -70,7 +70,7 @@ public class PlayerRaceur : Raceur
 				}
 				dPosition=forward*hit.distance;
 			}
-			agent.speed =7f;
+			agent.speed =speed;
 			agent.SetDestination(transform.position+dPosition);
 			//Debug.Log("player :"+agent.destination.ToString("F2"));
 			/*
