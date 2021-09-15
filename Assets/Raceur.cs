@@ -124,7 +124,7 @@ public class Raceur : MonoBehaviour, IComparable
 			
 	}
 	
-	void OnTriggerEnter(Collider other) {
+	protected virtual void OnTriggerEnter(Collider other) {
 		int hitWaypoint = Array.IndexOf(Circuit.instance.turns,other.transform)+1;
 		if(AlreadyThere(hitWaypoint)) {
 			return;

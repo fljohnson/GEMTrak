@@ -18,6 +18,9 @@ public class PlayerRaceur : Raceur
 	public float angularSpeed;
 	public float stoppingDistance;
 	
+	private bool reloading = false;
+	private Vector3 reloadPoint;
+	
     // Start is called before the first frame update
     void Start()
     {
@@ -38,6 +41,10 @@ public class PlayerRaceur : Raceur
     
     //here's the new wrinkle: we set the relative destination as a function of transform.forward and agent.speed*deltaTime
     protected override void CheckPosition() {
+		if(reloading) {
+			FinishReload();
+			return;
+		}
 		Vector3 dPosition;
 		float pedals = Input.GetAxis("Vertical");
 		
@@ -60,33 +67,21 @@ public class PlayerRaceur : Raceur
 			rotacion.y = dSteer;
 		
 			
-			//transform.Rotate(rotacion);
-			dPosition = forward*100f;
+			transform.Rotate(rotacion);
+			dPosition = transform.forward*100f;
 			NavMeshHit hit;
 			if(agent.Raycast(transform.position+dPosition,out hit)) {
-			//	Debug.Log("player wham:"+forward.ToString("F2")+" "+hit.distance);
+				
+			/*
 				if(hit.distance<0.001f) {
 					Debug.Break();
-				}
-				dPosition=forward*hit.distance;
+				}*/
+				dPosition=transform.forward*hit.distance;
 			}
 			agent.speed =speed;
 			agent.SetDestination(transform.position+dPosition);
-			//Debug.Log("player :"+agent.destination.ToString("F2"));
-			/*
-			if(rotacion.y !=0) {
-				rb.velocity = transform.forward*speed;
-			}
-			else {
-				rb.velocity += transform.forward*dSpeed;
-				//rb.AddForce(transform.forward*dSpeed,ForceMode.VelocityChange);
-			}
-			*/
-		/*	
-		if((transform.position - Circuit.Waypoint(nextWaypoint)).magnitude < stoppingDistance) {
-			Debug.Log("Turn "+(nextWaypoint+1)+" done");
-			nextWaypoint++;
-		}*/
+			
+		
 		
 		
 	}
@@ -96,10 +91,47 @@ public class PlayerRaceur : Raceur
 			return;
 		}
 		handlingCollision = true;
-		Debug.Log("Schiesse");
+		StartReload();
+		/*
+		Debug.Log("Player At:"+transform.position.ToString("F2")+" going to "+Circuit.Waypoint(curWaypoint-1).ToString("F2"));
 		Debug.Break();
+		*/
 	}
 	
+	void StartReload() {
+		reloading = true;
+		//float back to last waypoint
+		//TODO:hide the child GameObject(s)
+		agent.enabled = false;
+		reloadPoint = (Circuit.Waypoint(curWaypoint-1));
+		reloadPoint.y = transform.position.y;
+		rb.velocity =4f*(reloadPoint - transform.position).normalized;
+		
+	}
+	
+	void FinishReload() {
+		if((reloadPoint - transform.position).magnitude < stoppingDistance){
+			//Debug.Log("arrived:"+transform.position.ToString("F2")+" going to "+reloadPoint.ToString("F2")+" "+stoppingDistance);
+			rb.velocity = Vector3.zero;
+			//Debug.Break();
+			//TODO:set rotation.y to that of curWaypoint-1, then
+			/*
+			-calculate heading as done in ActualStart()
+			-re-show hidden child GameObject(s)
+			*/
+			reloading = false;
+			handlingCollision = false;
+			agent.enabled = true;
+			speed = 0;
+		}
+	}
+	
+	protected override void OnTriggerEnter(Collider other) {
+		if(!reloading) {
+			base.OnTriggerEnter(other);
+		}
+	}
+	/*
 	void OnTriggerExit(Collider other) {
 		int hitWaypoint = Array.IndexOf(Circuit.instance.turns,other.transform)+1;
 		if(hitWaypoint <= nextWaypoint) {
@@ -117,5 +149,5 @@ public class PlayerRaceur : Raceur
 				return;
 			}
 		}
-	}
+	}*/
 }
