@@ -26,6 +26,10 @@ public class Circuit : MonoBehaviour
 		return  instance.turns[i].position;
 	}
 	
+	public static float WaypointAngleDegrees(int i) {
+		return instance.turns[i].eulerAngles.y;
+	}
+	
 	public static Raceur InFrontOf(Raceur inquirer) {
 		Array.Sort(instance.field); //leader will be at posn 0; trailer will be at posn field.Length-1
 		int posn = Array.IndexOf(instance.field,inquirer);

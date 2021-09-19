@@ -100,8 +100,12 @@ public class PlayerRaceur : Raceur
 	
 	void StartReload() {
 		reloading = true;
+		//hide the child GameObject(s)
+		for(int i=0;i<transform.childCount;i++) {
+			transform.GetChild(i).gameObject.SetActive(false);
+		}
+		
 		//float back to last waypoint
-		//TODO:hide the child GameObject(s)
 		agent.enabled = false;
 		reloadPoint = (Circuit.Waypoint(curWaypoint-1));
 		reloadPoint.y = transform.position.y;
@@ -111,14 +115,23 @@ public class PlayerRaceur : Raceur
 	
 	void FinishReload() {
 		if((reloadPoint - transform.position).magnitude < stoppingDistance){
+			
 			//Debug.Log("arrived:"+transform.position.ToString("F2")+" going to "+reloadPoint.ToString("F2")+" "+stoppingDistance);
 			rb.velocity = Vector3.zero;
 			//Debug.Break();
-			//TODO:set rotation.y to that of curWaypoint-1, then
 			/*
+			-set rotation.y to that of curWaypoint-1
 			-calculate heading as done in ActualStart()
 			-re-show hidden child GameObject(s)
 			*/
+			
+			Vector3 rot = transform.eulerAngles;
+			rot.y = Circuit.WaypointAngleDegrees(curWaypoint-1);
+			transform.eulerAngles = rot;
+			heading = Mathf.Round(Mathf.Atan2(transform.forward.x,transform.forward.z)*Mathf.Rad2Deg);
+			for(int i=0;i<transform.childCount;i++) {
+				transform.GetChild(i).gameObject.SetActive(true);
+			}
 			reloading = false;
 			handlingCollision = false;
 			agent.enabled = true;
@@ -131,23 +144,5 @@ public class PlayerRaceur : Raceur
 			base.OnTriggerEnter(other);
 		}
 	}
-	/*
-	void OnTriggerExit(Collider other) {
-		int hitWaypoint = Array.IndexOf(Circuit.instance.turns,other.transform)+1;
-		if(hitWaypoint <= nextWaypoint) {
-			return;
-		}
-		
-		curWaypoint = hitWaypoint;
-		nextWaypoint = hitWaypoint;
-		if(nextWaypoint >= Circuit.instance.turns.Length) {
-			laps++;
-			//nextWaypoint=Mathf.Max(0,nextWaypoint - Circuit.instance.turns.Length);
-			Debug.Log(name+":lap completed "+laps);
-			if(laps >1) {
-				Debug.Break();
-				return;
-			}
-		}
-	}*/
+	
 }
