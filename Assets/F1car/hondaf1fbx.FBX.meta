@@ -3,7 +3,77 @@ guid: 9943d73cae15b6415868f75d99780c23
 ModelImporter:
   serializedVersion: 20200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Box01Mat
+    second: {fileID: 2100000, guid: 56792a24c52a9002684851e9f67cfcd0, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Box02Mat
+    second: {fileID: 2100000, guid: 4471a5d702bbcf756bedbb7d98778bc2, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Box12Mat
+    second: {fileID: 2100000, guid: e915d80b6a72cff83b4627ce314ff911, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Box13Mat
+    second: {fileID: 2100000, guid: 0747dbf167d29978abcd0464a39fd737, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Box30Mat
+    second: {fileID: 2100000, guid: 4115e22d1aef6be04adbd5094b371e77, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: black  ( Standard )
+    second: {fileID: 2100000, guid: 1c9d60e2826944bc382e7a0fc5069b99, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: blackshine  ( Standard )
+    second: {fileID: 2100000, guid: 1ba62ab43b6d590f8b01d28c393a6769, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: body
+    second: {fileID: 2100000, guid: d8d480100ea0022fc863bb57a070c2da, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: frontsideleft  ( Standard )
+    second: {fileID: 2100000, guid: bc119516c45908383a6639ef678e67ee, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: red  ( Standard )
+    second: {fileID: 2100000, guid: 9aa493cb5ef2b13f188a5919afd2711d, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sideright  ( Standard )
+    second: {fileID: 2100000, guid: 6839ed4e51b10d3b988875228a4c4369, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: spoilerside  ( Standard )
+    second: {fileID: 2100000, guid: c2e83c48c1f6f1b768ea0eac4598980e, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tyres  ( Standard )
+    second: {fileID: 2100000, guid: 4973c9193ed2692a09cd6ec5b48b9fc9, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: wheel  ( Standard )
+    second: {fileID: 2100000, guid: 582e163a79b92d373b72e956011298e4, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
