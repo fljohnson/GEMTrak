@@ -130,7 +130,7 @@ public class Raceur : MonoBehaviour, IComparable
 			return;
 		}
 		
-		Debug.Log(name+":curWaypoint:"+curWaypoint+"; hitWaypoint:"+hitWaypoint);
+		//Debug.Log(name+":curWaypoint:"+curWaypoint+"; hitWaypoint:"+hitWaypoint);
 		curWaypoint = hitWaypoint;
 		
 		HandleWaypointChange();
