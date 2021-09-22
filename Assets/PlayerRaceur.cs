@@ -20,7 +20,12 @@ public class PlayerRaceur : Raceur
 	
 	private bool reloading = false;
 	private Vector3 reloadPoint;
-	
+	private Vector3 priorPosition; //to help turn the right way during the reload cycle
+	private bool atReloadPoint = false;
+	private Vector3 crashAngle;
+	private NavMeshPath reloadPath;
+	private int reloadPathIndex = -1;
+	 	
     // Start is called before the first frame update
     void Start()
     {
@@ -37,6 +42,7 @@ public class PlayerRaceur : Raceur
 		heading = Mathf.Round(Mathf.Atan2(transform.forward.x,transform.forward.z)*Mathf.Rad2Deg);
 		agent = GetComponent<NavMeshAgent>();
 		//agent.updateRotation = false;
+		reloadPath = new NavMeshPath();
     }
     
     //here's the new wrinkle: we set the relative destination as a function of transform.forward and agent.speed*deltaTime
@@ -55,7 +61,17 @@ public class PlayerRaceur : Raceur
 			speed1 = Mathf.Max(0,speed+pedals*braking*Time.deltaTime);
 		}
 		float dSpeed = speed1 -speed;
+		
 		speed = speed1;
+		if(dSpeed > 0) {
+			Accelerate();
+		}
+		if(dSpeed < 0) {
+			Decelerate();
+		}
+		if(!agent.updateRotation) {
+			agent.updateRotation = true;
+		}
 		
 			float dSteer = 0;
 			if(steeringWheel !=0 ) {
@@ -104,18 +120,29 @@ public class PlayerRaceur : Raceur
 		for(int i=0;i<transform.childCount;i++) {
 			transform.GetChild(i).gameObject.SetActive(false);
 		}
-		
+		if(audiodeck != null) {
+			audiodeck.Stop();
+		}
 		//float back to last waypoint
-		agent.enabled = false;
+		atReloadPoint = false;
+		agent.updateRotation = false;
 		reloadPoint = (Circuit.Waypoint(curWaypoint-1));
 		reloadPoint.y = transform.position.y;
-		rb.velocity =4f*(reloadPoint - transform.position).normalized;
+		agent.speed = (reloadPoint - transform.position).magnitude/6f; //make the trip in about 4s
+		//agent.SetDestination(reloadPoint);
+		agent.velocity = Vector3.zero;
+		agent.CalculatePath(reloadPoint,reloadPath);
+		priorPosition = transform.position;
+		crashAngle = transform.forward;
+		//Debug.Log("Break "+crashAngle.ToString("F2")+" "+transform.eulerAngles.y);
+		//Debug.Break();
+		//rb.velocity =4f*(reloadPoint - transform.position).normalized;
 		
 	}
 	
 	void FinishReload() {
-		if((reloadPoint - transform.position).magnitude < stoppingDistance){
-			
+		//if((reloadPoint - transform.position).magnitude < stoppingDistance){
+		if(atReloadPoint) {	
 			//Debug.Log("arrived:"+transform.position.ToString("F2")+" going to "+reloadPoint.ToString("F2")+" "+stoppingDistance);
 			rb.velocity = Vector3.zero;
 			//Debug.Break();
@@ -126,23 +153,99 @@ public class PlayerRaceur : Raceur
 			*/
 			
 			Vector3 rot = transform.eulerAngles;
-			rot.y = Circuit.WaypointAngleDegrees(curWaypoint-1);
+			rot.y = Circuit.WaypointAngleDegrees(curWaypoint-1);//+180f;
 			transform.eulerAngles = rot;
 			heading = Mathf.Round(Mathf.Atan2(transform.forward.x,transform.forward.z)*Mathf.Rad2Deg);
 			for(int i=0;i<transform.childCount;i++) {
 				transform.GetChild(i).gameObject.SetActive(true);
 			}
+			reloadPathIndex=-1;
 			reloading = false;
 			handlingCollision = false;
-			agent.enabled = true;
+			agent.speed=0;
+			//agent.updateRotation = true;
+			agent.Warp(transform.position);
+			agent.updatePosition = true;
 			speed = 0;
+			//Debug.Break();
+		}
+		else
+		{
+			if(reloadPath.status !=  NavMeshPathStatus.PathComplete) {
+				return;
+			}
+			
+			if(reloadPathIndex <0) {
+				reloadPathIndex=1;
+				agent.updatePosition = false;
+				for(int i=0;i<reloadPath.corners.Length;i++) {
+					Debug.Log("Point "+i+":"+reloadPath.corners[i].ToString("F2"));
+				}
+			}
+			
+			
+			if(MoveForReload())
+			{
+				reloadPathIndex++;
+				if(reloadPathIndex==reloadPath.corners.Length){
+					atReloadPoint = true;
+				}
+			}
+			
 		}
 	}
 	
+	bool MoveForReload() {
+		Vector3 dPos = (reloadPath.corners[reloadPathIndex]-transform.position);
+		dPos.y = 0;
+			
+		if(dPos.magnitude < agent.stoppingDistance) {
+			//Debug.Log("Brakes:"+reloadPath.corners[reloadPathIndex].ToString("F2"));
+			return true;
+		}
+		transform.position+=dPos.normalized*agent.speed*Time.deltaTime;
+		return false;
+	}
 	protected override void OnTriggerEnter(Collider other) {
 		if(!reloading) {
 			base.OnTriggerEnter(other);
 		}
+		else {
+			
+			int hitWaypoint = Array.IndexOf(Circuit.instance.turns,other.transform)+1;
+			if(hitWaypoint > curWaypoint) {
+				Debug.Log("whoopsie");
+				return;
+			}
+			/*
+			if(hitWaypoint != curWaypoint) {
+				Debug.Log("UHOH:"+hitWaypoint+" vs "+(curWaypoint));
+				Debug.Break();
+			}*/
+			//curWaypoint = hitWaypoint; //Array.IndexOf(Circuit.instance.turns,other.transform)
+			//atReloadPoint = true;
+		}
+	}
+	//curWaypoint should be set there
+	
+	protected override void Accelerate() {
+		if(audiodeck == null) {
+			return;
+		}
+		if(speed > 0 && !audiodeck.isPlaying) {
+			audiodeck.Play();
+		}
+		audiodeck.pitch = speed/topSpeed;
 	}
 	
+	protected override void Decelerate() {
+		if(audiodeck == null) {
+			return;
+		}
+		if(speed == 0) {
+			audiodeck.Stop();
+			return;
+		}
+		audiodeck.pitch = speed/topSpeed;
+	}
 }

@@ -13,6 +13,7 @@ public class Raceur : MonoBehaviour, IComparable
 	protected NavMeshAgent agent;
 	protected bool handlingCollision = false;
 	protected bool started=false;
+	protected AudioSource audiodeck;
     // Start is called before the first frame update
     protected virtual void ActualStart()
     {
@@ -25,6 +26,7 @@ public class Raceur : MonoBehaviour, IComparable
     {
 		if(!started) {
 			if(Circuit.instance != null) {
+				audiodeck = GetComponent<AudioSource>();
 				ActualStart();
 				started = true;
 			}
@@ -44,11 +46,11 @@ public class Raceur : MonoBehaviour, IComparable
 			//nextWaypoint = Mathf.Min(GetNextWaypoint(ahead.GetWaypoint()),Circuit.instance.turns.Length-1);
 			//nextWaypoint=Mathf.Max(nextWaypoint,possible);
 			nextWaypoint = GetNextWaypoint(ahead.GetWaypoint());
-			agent.speed = topSpeed;
+			Accelerate();
 			return;
 		}
 		
-		agent.speed = 7f;
+		Decelerate();
 		
 		/*
 		if(agent.pathPending) {
@@ -167,5 +169,13 @@ public class Raceur : MonoBehaviour, IComparable
 	
 	void DoShutdown() {
 		Debug.Break();
+	}
+	
+	protected virtual void Accelerate() {
+		agent.speed = topSpeed;
+	}
+	
+	protected virtual void Decelerate() {
+		agent.speed = 7f;
 	}
 }
