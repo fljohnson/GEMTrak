@@ -178,9 +178,9 @@ public class PlayerRaceur : Raceur
 			if(reloadPathIndex <0) {
 				reloadPathIndex=1;
 				agent.updatePosition = false;
-				for(int i=0;i<reloadPath.corners.Length;i++) {
+				/*for(int i=0;i<reloadPath.corners.Length;i++) {
 					Debug.Log("Point "+i+":"+reloadPath.corners[i].ToString("F2"));
-				}
+				}*/
 			}
 			
 			
