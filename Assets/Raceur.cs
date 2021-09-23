@@ -173,9 +173,26 @@ public class Raceur : MonoBehaviour, IComparable
 	
 	protected virtual void Accelerate() {
 		agent.speed = topSpeed;
+		SetEngineAudio(agent.speed/topSpeed);
 	}
 	
 	protected virtual void Decelerate() {
 		agent.speed = 7f;
+		
+		SetEngineAudio(agent.speed/topSpeed);
+	}
+	
+	protected void SetEngineAudio(float factor) {
+		if(audiodeck == null) {
+			return;
+		}
+		if(factor == 0 && audiodeck.isPlaying) {
+			audiodeck.Stop();
+			return;
+		}
+		if(factor > 0 && !audiodeck.isPlaying) {
+			audiodeck.Play();
+		}
+		audiodeck.pitch = factor*2.7f;	
 	}
 }

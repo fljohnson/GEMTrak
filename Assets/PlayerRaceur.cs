@@ -229,23 +229,12 @@ public class PlayerRaceur : Raceur
 	//curWaypoint should be set there
 	
 	protected override void Accelerate() {
-		if(audiodeck == null) {
-			return;
-		}
-		if(speed > 0 && !audiodeck.isPlaying) {
-			audiodeck.Play();
-		}
-		audiodeck.pitch = speed/topSpeed;
+		
+		SetEngineAudio(speed/topSpeed);
 	}
 	
 	protected override void Decelerate() {
-		if(audiodeck == null) {
-			return;
-		}
-		if(speed == 0) {
-			audiodeck.Stop();
-			return;
-		}
-		audiodeck.pitch = speed/topSpeed;
+		
+		SetEngineAudio(speed/topSpeed);
 	}
 }
