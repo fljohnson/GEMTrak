@@ -33,7 +33,6 @@ public class Circuit : MonoBehaviour
 	public static Raceur InFrontOf(Raceur inquirer) {
 		Array.Sort(instance.field); //leader will be at posn 0; trailer will be at posn field.Length-1
 		int posn = Array.IndexOf(instance.field,inquirer);
-		
 		//eliminate the ties
 		/*while(posn > 0 && instance.field[posn].GetWaypoint() == instance.field[posn-1].GetWaypoint()) {
 			posn--;
@@ -44,4 +43,9 @@ public class Circuit : MonoBehaviour
 		}
 		return instance.field[posn-1];
 	}
+	
+	public static int Place(Raceur inquirer) {
+		return Array.IndexOf(instance.field, inquirer)+1;
+	}
+		
 }

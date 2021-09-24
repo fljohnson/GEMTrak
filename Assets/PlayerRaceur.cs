@@ -25,6 +25,9 @@ public class PlayerRaceur : Raceur
 	private Vector3 crashAngle;
 	private NavMeshPath reloadPath;
 	private int reloadPathIndex = -1;
+	public float maxDisplaySpeed = 173.984f;
+	private ArrayList lapTimes = new ArrayList();
+	private float lapStart;
 	 	
     // Start is called before the first frame update
     void Start()
@@ -43,8 +46,13 @@ public class PlayerRaceur : Raceur
 		agent = GetComponent<NavMeshAgent>();
 		//agent.updateRotation = false;
 		reloadPath = new NavMeshPath();
+		Go();
     }
     
+    //see notes on Raceur.Go()
+    public override void Go() {
+		lapStart = Time.time;
+	}
     //here's the new wrinkle: we set the relative destination as a function of transform.forward and agent.speed*deltaTime
     protected override void CheckPosition() {
 		if(reloading) {
@@ -126,7 +134,7 @@ public class PlayerRaceur : Raceur
 		//float back to last waypoint
 		atReloadPoint = false;
 		agent.updateRotation = false;
-		reloadPoint = (Circuit.Waypoint(curWaypoint-1));
+		reloadPoint = (Circuit.Waypoint(Mathf.Max(curWaypoint-1,0)));
 		reloadPoint.y = transform.position.y;
 		agent.speed = (reloadPoint - transform.position).magnitude/6f; //make the trip in about 4s
 		//agent.SetDestination(reloadPoint);
@@ -136,12 +144,11 @@ public class PlayerRaceur : Raceur
 		crashAngle = transform.forward;
 		//Debug.Log("Break "+crashAngle.ToString("F2")+" "+transform.eulerAngles.y);
 		//Debug.Break();
-		//rb.velocity =4f*(reloadPoint - transform.position).normalized;
 		
 	}
 	
 	void FinishReload() {
-		//if((reloadPoint - transform.position).magnitude < stoppingDistance){
+		
 		if(atReloadPoint) {	
 			//Debug.Log("arrived:"+transform.position.ToString("F2")+" going to "+reloadPoint.ToString("F2")+" "+stoppingDistance);
 			rb.velocity = Vector3.zero;
@@ -217,16 +224,8 @@ public class PlayerRaceur : Raceur
 				Debug.Log("whoopsie");
 				return;
 			}
-			/*
-			if(hitWaypoint != curWaypoint) {
-				Debug.Log("UHOH:"+hitWaypoint+" vs "+(curWaypoint));
-				Debug.Break();
-			}*/
-			//curWaypoint = hitWaypoint; //Array.IndexOf(Circuit.instance.turns,other.transform)
-			//atReloadPoint = true;
 		}
 	}
-	//curWaypoint should be set there
 	
 	protected override void Accelerate() {
 		
@@ -236,5 +235,33 @@ public class PlayerRaceur : Raceur
 	protected override void Decelerate() {
 		
 		SetEngineAudio(speed/topSpeed);
+	}
+	
+	
+	
+	public int GetPlace() {
+		return Circuit.Place(this);
+	}
+	
+	public String GetDashboardSpeed() {
+		float displaySpeed = (speed/topSpeed)*maxDisplaySpeed;
+		return displaySpeed.ToString("f1")+"mph";
+	}
+	
+	protected override void LapCompletion() {
+		int rawSec = (int)(Time.time - lapStart);
+		lapTimes.Add(rawSec);
+		lapStart = Time.time;
+	}
+	
+	public String LastLapTime() {
+		int i = lapTimes.Count-1;
+		if(i<0) {
+			return "FAIL";
+		}
+		int rawSecs = (int)lapTimes[i];
+		int mins = (int)(rawSecs/60);
+		int secs = rawSecs-mins*60;
+		return mins+":"+secs.ToString("d2");
 	}
 }

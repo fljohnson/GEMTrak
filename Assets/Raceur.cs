@@ -29,6 +29,7 @@ public class Raceur : MonoBehaviour, IComparable
 				audiodeck = GetComponent<AudioSource>();
 				ActualStart();
 				started = true;
+				Go();
 			}
 			else {
 				return;
@@ -37,14 +38,17 @@ public class Raceur : MonoBehaviour, IComparable
         CheckPosition();
     }
     
+    //in practice, ControlCenter calls Go() on all Raceurs upon "green light"
+    public virtual void Go() {
+		
+	}
+	
     protected virtual void CheckPosition() {
 		Raceur ahead = Circuit.InFrontOf(this);
 		
 		if(ahead != null) {
-			//TODO:if the Waypoint just ahead of the Racer ahead of us is closer than where we were headed anyway, do nothing
-			//in theory, this shouldn't even be an issue - may have cropped up earlier due to not enough Waypoints
-			//nextWaypoint = Mathf.Min(GetNextWaypoint(ahead.GetWaypoint()),Circuit.instance.turns.Length-1);
-			//nextWaypoint=Mathf.Max(nextWaypoint,possible);
+			//Try to beat whoever's ahead to his next Waypoint
+			//For this to work, at a minimum, the Circuit needs three Waypoints per turn (entry, apex, and exit), as well as two per straightaway
 			nextWaypoint = GetNextWaypoint(ahead.GetWaypoint());
 			Accelerate();
 			return;
@@ -52,50 +56,17 @@ public class Raceur : MonoBehaviour, IComparable
 		
 		Decelerate();
 		
-		/*
-		if(agent.pathPending) {
-			return;
-		}
-		int finalPt=agent.path.corners.Length-1;
-		if(finalPt > -1) {
-			if((transform.position - agent.path.corners[finalPt]).magnitude >= agent.stoppingDistance) {
-				return;
-			}
-		}
-		else {
-			if((transform.position - agent.destination).magnitude >= agent.stoppingDistance) {
-				return;
-			}
-		}
-		Debug.Log("Waypoint hit");
-		Debug.Break();
-		curWaypoint=nextWaypoint;
-		nextWaypoint++;
-		
-		HandleWaypointChange();
-		*/
 		
 	}
 	
 	void HandleWaypointChange() {
-		/*
-		if(curWaypoint < Circuit.instance.turns.Length) {
-			agent.SetDestination(Circuit.Waypoint(nextWaypoint));
-			return;
-		}
-		laps++;
-		nextWaypoint=Mathf.Max(0,nextWaypoint - Circuit.instance.turns.Length);
-		Debug.Log(name+":lap completed "+laps);
-		if(laps <2) {
-			return;
-		}
-		Debug.Break();
-		*/
+		
 		if(curWaypoint >= Circuit.instance.turns.Length) {
 			laps++;
-			Debug.Log(name+":Lap "+laps+" completed");
+			LapCompletion();
+			//Debug.Log(name+":Lap "+laps+" completed");
 			curWaypoint = 0;
-			if(laps == 2) {
+			if(laps == ControlCenter.LapsThisLevel()) {
 				DoShutdown();
 				return;
 			}
@@ -122,6 +93,18 @@ public class Raceur : MonoBehaviour, IComparable
 		if(myWaypoint < hisWaypoint) {
 			return 1;
 		}
+		//a finer grain: who's farther past the current waypoint? (FLJ, 9/23/2021)
+		
+		Vector3 coords = Circuit.Waypoint(GetWaypoint());
+		
+		float hisDistance = HorizDistance(coords,him.transform.position);
+		float myDistance = HorizDistance(coords,transform.position);
+		if(myDistance <  hisDistance ) {
+			return -1;
+		}
+		if(myDistance > hisDistance) {
+			return 1;
+		}
 		return 0;
 			
 	}
@@ -136,17 +119,7 @@ public class Raceur : MonoBehaviour, IComparable
 		curWaypoint = hitWaypoint;
 		
 		HandleWaypointChange();
-		/*
-		if(hitWaypoint <= nextWaypoint) {
-			return;
-		}
 		
-		Debug.Log(name+":Turn "+(nextWaypoint+1)+" done");
-		curWaypoint = hitWaypoint;
-		nextWaypoint = hitWaypoint;
-		
-		HandleWaypointChange();
-		*/
 	}
 	
 	bool AlreadyThere(int waypoint) {
@@ -194,5 +167,13 @@ public class Raceur : MonoBehaviour, IComparable
 			audiodeck.Play();
 		}
 		audiodeck.pitch = factor*2.7f;	
+	}
+	
+	public float HorizDistance(Vector3 end, Vector3 start) {
+		end.y=start.y;
+		return (end-start).magnitude;
+	} 
+	
+	protected virtual void LapCompletion() {
 	}
 }
