@@ -18,16 +18,22 @@ public class PlayerRaceur : Raceur
 	public float angularSpeed;
 	public float stoppingDistance;
 	
+	public GameObject crashDebris;
+	public float wreckageWait;
+	
 	private bool reloading = false;
 	private Vector3 reloadPoint;
 	private Vector3 priorPosition; //to help turn the right way during the reload cycle
 	private bool atReloadPoint = false;
+	
+	private float wreckageTimer;
 	private Vector3 crashAngle;
 	private NavMeshPath reloadPath;
 	private int reloadPathIndex = -1;
 	public float maxDisplaySpeed = 173.984f;
 	private ArrayList lapTimes = new ArrayList();
 	private float lapStart;
+	
 	 	
     // Start is called before the first frame update
     void Start()
@@ -56,7 +62,13 @@ public class PlayerRaceur : Raceur
     //here's the new wrinkle: we set the relative destination as a function of transform.forward and agent.speed*deltaTime
     protected override void CheckPosition() {
 		if(reloading) {
-			FinishReload();
+			if(wreckageTimer < Time.time) {
+				FinishReload();
+			}
+			else
+			{
+				StartReload();
+			}
 			return;
 		}
 		Vector3 dPosition;
@@ -115,15 +127,6 @@ public class PlayerRaceur : Raceur
 			return;
 		}
 		handlingCollision = true;
-		StartReload();
-		/*
-		Debug.Log("Player At:"+transform.position.ToString("F2")+" going to "+Circuit.Waypoint(curWaypoint-1).ToString("F2"));
-		Debug.Break();
-		*/
-	}
-	
-	void StartReload() {
-		reloading = true;
 		//hide the child GameObject(s)
 		for(int i=0;i<transform.childCount;i++) {
 			transform.GetChild(i).gameObject.SetActive(false);
@@ -131,6 +134,19 @@ public class PlayerRaceur : Raceur
 		if(audiodeck != null) {
 			audiodeck.Stop();
 		}
+		Instantiate(crashDebris,transform.position,Quaternion.identity);
+		wreckageTimer = Time.time + wreckageWait;
+		reloading = true;
+		//StartReload();
+		/*
+		Debug.Log("Player At:"+transform.position.ToString("F2")+" going to "+Circuit.Waypoint(curWaypoint-1).ToString("F2"));
+		Debug.Break();
+		*/
+	}
+	
+	void StartReload() {
+		//reloading = true;
+		
 		//float back to last waypoint
 		atReloadPoint = false;
 		agent.updateRotation = false;
@@ -160,7 +176,12 @@ public class PlayerRaceur : Raceur
 			*/
 			
 			Vector3 rot = transform.eulerAngles;
-			rot.y = Circuit.WaypointAngleDegrees(curWaypoint-1);//+180f;
+			if(curWaypoint > 0) {
+				rot.y = Circuit.WaypointAngleDegrees(curWaypoint-1);
+			}
+			else {
+				rot.y = Circuit.WaypointAngleDegrees(0);
+			}
 			transform.eulerAngles = rot;
 			heading = Mathf.Round(Mathf.Atan2(transform.forward.x,transform.forward.z)*Mathf.Rad2Deg);
 			for(int i=0;i<transform.childCount;i++) {

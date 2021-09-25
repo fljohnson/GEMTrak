@@ -2169,7 +2169,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: e8e5b26337f270cb7a60ab7caa7c0747, type: 3}
   m_PlayOnAwake: 0
-  m_Volume: 1
+  m_Volume: 0.5
   m_Pitch: 3
   Loop: 1
   Mute: 0
@@ -2336,7 +2336,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: e8e5b26337f270cb7a60ab7caa7c0747, type: 3}
   m_PlayOnAwake: 0
-  m_Volume: 0.05
+  m_Volume: 0.5
   m_Pitch: 1
   Loop: 1
   Mute: 0
@@ -2438,6 +2438,8 @@ MonoBehaviour:
   braking: 16
   angularSpeed: 30
   stoppingDistance: 1
+  crashDebris: {fileID: 100012, guid: 4d1e15e4598612fa6abf50fe2145d75f, type: 3}
+  wreckageWait: 2
   maxDisplaySpeed: 173.984
 --- !u!4 &1130566307
 Transform:
@@ -3144,7 +3146,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: e8e5b26337f270cb7a60ab7caa7c0747, type: 3}
   m_PlayOnAwake: 0
-  m_Volume: 1
+  m_Volume: 0.5
   m_Pitch: 3
   Loop: 1
   Mute: 0
