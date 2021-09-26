@@ -240,7 +240,8 @@ public class PlayerRaceur : Raceur
 		else {
 			
 			int hitWaypoint = Array.IndexOf(Circuit.instance.turns,other.transform)+1;
-			if(hitWaypoint > curWaypoint) {
+			if(hitWaypoint > curWaypoint) { //TODO:get actual next waypoint
+				curWaypoint = hitWaypoint;
 				Debug.Log("whoopsie");
 				return;
 			}
