@@ -29,7 +29,7 @@ public class PlayerRaceur : Raceur
 	private float wreckageTimer;
 	private Vector3 crashAngle;
 	private NavMeshPath reloadPath;
-	private int reloadPathIndex = -1;
+	
 	public float maxDisplaySpeed = 173.984f;
 	private ArrayList lapTimes = new ArrayList();
 	private float lapStart;
@@ -104,19 +104,17 @@ public class PlayerRaceur : Raceur
 		
 			
 			transform.Rotate(rotacion);
-			dPosition = transform.forward*100f;
+			agent.velocity = transform.forward*speed;
+			/*
+			dPosition = transform.forward*speed*Time.time;
 			NavMeshHit hit;
 			if(agent.Raycast(transform.position+dPosition,out hit)) {
 				
-			/*
-				if(hit.distance<0.001f) {
-					Debug.Break();
-				}*/
 				dPosition=transform.forward*hit.distance;
 			}
 			agent.speed =speed;
 			agent.SetDestination(transform.position+dPosition);
-			
+			*/
 		
 		
 		
