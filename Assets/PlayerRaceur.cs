@@ -150,12 +150,13 @@ public class PlayerRaceur : Raceur
 		//float back to last waypoint
 		atReloadPoint = false;
 		agent.updateRotation = false;
+		agent.updatePosition = false;
 		reloadPoint = (Circuit.Waypoint(Mathf.Max(curWaypoint-1,0)));
 		reloadPoint.y = transform.position.y;
 		agent.speed = (reloadPoint - transform.position).magnitude/6f; //make the trip in about 4s
 		//agent.SetDestination(reloadPoint);
 		agent.velocity = Vector3.zero;
-		agent.CalculatePath(reloadPoint,reloadPath);
+		//agent.CalculatePath(reloadPoint,reloadPath);
 		priorPosition = transform.position;
 		crashAngle = transform.forward;
 		//Debug.Log("Break "+crashAngle.ToString("F2")+" "+transform.eulerAngles.y);
@@ -166,7 +167,7 @@ public class PlayerRaceur : Raceur
 	void FinishReload() {
 		
 		if(atReloadPoint) {	
-			//Debug.Log("arrived:"+transform.position.ToString("F2")+" going to "+reloadPoint.ToString("F2")+" "+stoppingDistance);
+			//Debug.Log("arrived:"+transform.position.ToString("F2")+" going to "+reloadPoint.ToString("F2")+" "+agent.stoppingDistance);
 			rb.velocity = Vector3.zero;
 			//Debug.Break();
 			/*
@@ -187,11 +188,10 @@ public class PlayerRaceur : Raceur
 			for(int i=0;i<transform.childCount;i++) {
 				transform.GetChild(i).gameObject.SetActive(true);
 			}
-			reloadPathIndex=-1;
+			//reloadPathIndex=-1;
 			reloading = false;
 			handlingCollision = false;
 			agent.speed=0;
-			//agent.updateRotation = true;
 			agent.Warp(transform.position);
 			agent.updatePosition = true;
 			speed = 0;
@@ -199,6 +199,7 @@ public class PlayerRaceur : Raceur
 		}
 		else
 		{
+			/*
 			if(reloadPath.status !=  NavMeshPathStatus.PathComplete) {
 				return;
 			}
@@ -206,28 +207,26 @@ public class PlayerRaceur : Raceur
 			if(reloadPathIndex <0) {
 				reloadPathIndex=1;
 				agent.updatePosition = false;
-				/*for(int i=0;i<reloadPath.corners.Length;i++) {
-					Debug.Log("Point "+i+":"+reloadPath.corners[i].ToString("F2"));
-				}*/
 			}
+			*/
 			
 			
 			if(MoveForReload())
 			{
-				reloadPathIndex++;
-				if(reloadPathIndex==reloadPath.corners.Length){
+				//reloadPathIndex++;
+				//if(reloadPathIndex==reloadPath.corners.Length){
 					atReloadPoint = true;
-				}
+				//}
 			}
 			
 		}
 	}
 	
 	bool MoveForReload() {
-		Vector3 dPos = (reloadPath.corners[reloadPathIndex]-transform.position);
+		Vector3 dPos = (reloadPoint-transform.position);
 		dPos.y = 0;
 			
-		if(dPos.magnitude < agent.stoppingDistance) {
+		if(dPos.magnitude < .707f) { //1/square root of 2 seemed sufficient
 			//Debug.Log("Brakes:"+reloadPath.corners[reloadPathIndex].ToString("F2"));
 			return true;
 		}
