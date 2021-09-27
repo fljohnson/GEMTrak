@@ -7,7 +7,7 @@ using UnityEngine.AI;
 public class Raceur : MonoBehaviour, IComparable
 {
 	
-	
+	public GameObject stunBlastPrototype;
 	public float topSpeed;
 	public int laps = 0;
 	protected int nextWaypoint = 0;
@@ -16,6 +16,7 @@ public class Raceur : MonoBehaviour, IComparable
 	protected bool handlingCollision = false;
 	protected bool started=false;
 	protected AudioSource audiodeck;
+	protected Transform muzzle;
     // Start is called before the first frame update
     protected virtual void ActualStart()
     {
@@ -28,6 +29,7 @@ public class Raceur : MonoBehaviour, IComparable
 		if(!started) {
 			if(Circuit.instance != null) {
 				audiodeck = GetComponent<AudioSource>();
+				muzzle = transform.Find("Muzzle");
 				ActualStart();
 				started = true;
 				//Go();
@@ -179,5 +181,12 @@ public class Raceur : MonoBehaviour, IComparable
 	protected virtual void LapCompletion() {
 	}
 	
+	public virtual Vector3 GetVelocity() {
+		return agent.velocity;
+	}
 	
+	protected void Fire() {
+		GameObject orb = Instantiate(stunBlastPrototype,muzzle.position,Quaternion.identity);
+		orb.GetComponent<Stunshot>().Launch(this);
+	}
 }

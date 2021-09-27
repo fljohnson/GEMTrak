@@ -74,7 +74,10 @@ public class PlayerRaceur : Raceur
 			}
 			return;
 		}
-		Vector3 dPosition;
+		if(Input.GetKeyDown("space")) {
+			Fire();
+		}
+		
 		float pedals = Input.GetAxis("Vertical");
 		
 		float steeringWheel = Input.GetAxis("Horizontal");
@@ -128,6 +131,13 @@ public class PlayerRaceur : Raceur
 			return;
 		}
 		handlingCollision = true;
+		/* overcomplication
+		Stunshot s = collision.gameObject.GetComponent<Stunshot>();
+		if(s != null) {
+			s.CheckHittee(this);
+			return;
+		}
+		*/
 		//hide the child GameObject(s)
 		for(int i=0;i<transform.childCount;i++) {
 			transform.GetChild(i).gameObject.SetActive(false);
@@ -287,4 +297,6 @@ public class PlayerRaceur : Raceur
 		int secs = rawSecs-mins*60;
 		return mins+":"+secs.ToString("d2");
 	}
+	
+	
 }
