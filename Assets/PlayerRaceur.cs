@@ -52,7 +52,7 @@ public class PlayerRaceur : Raceur
 		agent = GetComponent<NavMeshAgent>();
 		//agent.updateRotation = false;
 		reloadPath = new NavMeshPath();
-		Go();
+		//Go();
     }
     
     //see notes on Raceur.Go()
@@ -61,6 +61,9 @@ public class PlayerRaceur : Raceur
 	}
     //here's the new wrinkle: we set the relative destination as a function of transform.forward and agent.speed*deltaTime
     protected override void CheckPosition() {
+		if(lapStart == 0f) {
+			return;
+		}
 		if(reloading) {
 			if(wreckageTimer < Time.time) {
 				FinishReload();
@@ -229,6 +232,7 @@ public class PlayerRaceur : Raceur
 			return true;
 		}
 		transform.position+=dPos.normalized*agent.speed*Time.deltaTime;
+		transform.forward=-dPos.normalized;
 		return false;
 	}
 	protected override void OnTriggerEnter(Collider other) {

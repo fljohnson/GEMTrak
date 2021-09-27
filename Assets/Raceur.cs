@@ -6,6 +6,8 @@ using UnityEngine.AI;
 
 public class Raceur : MonoBehaviour, IComparable
 {
+	
+	
 	public float topSpeed;
 	public int laps = 0;
 	protected int nextWaypoint = 0;
@@ -18,7 +20,6 @@ public class Raceur : MonoBehaviour, IComparable
     protected virtual void ActualStart()
     {
 		agent = GetComponent<NavMeshAgent>();
-        agent.SetDestination(Circuit.Waypoint(nextWaypoint));
     }
 
     // Update is called once per frame
@@ -29,7 +30,7 @@ public class Raceur : MonoBehaviour, IComparable
 				audiodeck = GetComponent<AudioSource>();
 				ActualStart();
 				started = true;
-				Go();
+				//Go();
 			}
 			else {
 				return;
@@ -40,6 +41,7 @@ public class Raceur : MonoBehaviour, IComparable
     
     //in practice, ControlCenter calls Go() on all Raceurs upon "green light"
     public virtual void Go() {
+        agent.SetDestination(Circuit.Waypoint(nextWaypoint));
 		
 	}
 	
@@ -176,4 +178,6 @@ public class Raceur : MonoBehaviour, IComparable
 	
 	protected virtual void LapCompletion() {
 	}
+	
+	
 }

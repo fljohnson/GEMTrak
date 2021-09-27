@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class ControlCenter : MonoBehaviour
 {
+	private static bool greenFlag = false;
+	private static float countdown = 5f;
+	
 	private static ControlCenter instance;
 	private static PlayerRaceur player;
 	public GUIStyle posnStyle;
@@ -22,6 +25,9 @@ public class ControlCenter : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+		if(!greenFlag) {
+			StartRace();
+		}
         if(Time.time > nextUpdateTime) {
 			playerPos = player.GetPlace();
 			nextUpdateTime = Time.time+interval;
@@ -43,5 +49,22 @@ public class ControlCenter : MonoBehaviour
     
     public static int LapsThisLevel() {
 		return instance.lapsThisLevel;
+	}
+	
+	static void StartRace() {
+		if(countdown > 0f) {
+			if( (int)(countdown - Time.deltaTime)!=(int)(countdown))
+			{
+				Debug.Log("T-minus "+(int)(countdown));
+			}
+			countdown -= Time.deltaTime;
+		}
+		else {
+			Debug.Log("GO!");
+			greenFlag=true;
+			foreach(Raceur r in Circuit.instance.field) {
+				r.Go();
+			}
+		}
 	}
 }
