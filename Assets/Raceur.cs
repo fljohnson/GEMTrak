@@ -17,6 +17,10 @@ public class Raceur : MonoBehaviour, IComparable
 	protected bool started=false;
 	protected AudioSource audiodeck;
 	protected Transform muzzle;
+	protected float zappedTime;
+	protected bool zapped = false;
+	protected float shutdownTimer = -2f;
+	protected float deceleration;
     // Start is called before the first frame update
     protected virtual void ActualStart()
     {
@@ -38,9 +42,33 @@ public class Raceur : MonoBehaviour, IComparable
 				return;
 			}
 		}
+		if(shutdownTimer==-1f) {
+			return;
+		}
+		if(shutdownTimer > 0) {
+			ProcessShutdown();
+			return;
+		}
+		if(zapped){
+			DoZapCycle();
+			return;
+		} 
         CheckPosition();
     }
     
+    protected virtual void DoZapCycle() {
+		zapped = zappedTime> Time.time;
+		if(!zapped) {
+			nextWaypoint = Mathf.Max(nextWaypoint,PlayerRaceur.Waypoint()+1);
+			if(nextWaypoint > Circuit.instance.turns.Length-1) {
+				nextWaypoint = Circuit.instance.turns.Length-1;
+			}
+			agent.SetDestination(Circuit.Waypoint(nextWaypoint));
+			Debug.Log(name+":Back in the race");
+			
+		}
+	}
+	
     //in practice, ControlCenter calls Go() on all Raceurs upon "green light"
     public virtual void Go() {
         agent.SetDestination(Circuit.Waypoint(nextWaypoint));
@@ -64,14 +92,14 @@ public class Raceur : MonoBehaviour, IComparable
 	}
 	
 	void HandleWaypointChange() {
-		
 		if(curWaypoint >= Circuit.instance.turns.Length) {
 			laps++;
 			LapCompletion();
 			//Debug.Log(name+":Lap "+laps+" completed");
 			curWaypoint = 0;
 			if(laps == ControlCenter.LapsThisLevel()) {
-				DoShutdown();
+				shutdownTimer = 4f;
+				deceleration=GetVelocity().magnitude/4f; //we'll be explicitly subtracting, so deceleration > 0
 				return;
 			}
 		}
@@ -114,6 +142,9 @@ public class Raceur : MonoBehaviour, IComparable
 	}
 	
 	protected virtual void OnTriggerEnter(Collider other) {
+		if(shutdownTimer > -2f) {
+			return;
+		}
 		int hitWaypoint = Array.IndexOf(Circuit.instance.turns,other.transform)+1;
 		if(AlreadyThere(hitWaypoint)) {
 			return;
@@ -144,8 +175,21 @@ public class Raceur : MonoBehaviour, IComparable
 		return rv;
 	}
 	
-	void DoShutdown() {
-		Debug.Break();
+	protected virtual void ProcessShutdown() {
+		
+		
+		float dSpeed = deceleration*Time.deltaTime;
+		shutdownTimer-=Time.deltaTime ;
+		if(shutdownTimer<0 || dSpeed >= agent.speed) {
+			Stop();
+			shutdownTimer= -1f;
+			Debug.Log(name+" has finished");
+			return;
+		}
+		
+		agent.speed -= dSpeed;
+		agent.velocity=(Circuit.Waypoint(0)-transform.position).normalized*agent.speed;
+		SetEngineAudio(agent.speed/topSpeed);
 	}
 	
 	protected virtual void Accelerate() {
@@ -188,5 +232,17 @@ public class Raceur : MonoBehaviour, IComparable
 	protected void Fire() {
 		GameObject orb = Instantiate(stunBlastPrototype,muzzle.position,Quaternion.identity);
 		orb.GetComponent<Stunshot>().Launch(this);
+	}
+	
+	public void ImHit(float secsDown) {
+		Stop();
+		zapped = true;
+		zappedTime = Time.time+secsDown;
+	}
+	
+	protected virtual void Stop() {
+		agent.velocity=Vector3.zero;
+		agent.speed = 0;
+		
 	}
 }

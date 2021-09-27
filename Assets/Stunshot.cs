@@ -47,6 +47,8 @@ public class Stunshot : MonoBehaviour
 			handlingCollision = false;
 			return;
 		}
+		whoHit.ImHit(5f);
+		Destroy(gameObject);
 	}
 	
 	public void Launch(Raceur sender) {

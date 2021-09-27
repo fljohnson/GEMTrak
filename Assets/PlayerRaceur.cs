@@ -34,10 +34,13 @@ public class PlayerRaceur : Raceur
 	private ArrayList lapTimes = new ArrayList();
 	private float lapStart;
 	
+	private static PlayerRaceur instance;
+	
 	 	
     // Start is called before the first frame update
     void Start()
     {
+		instance = this;
        rb=GetComponent<Rigidbody>(); 
     }
 
@@ -124,6 +127,23 @@ public class PlayerRaceur : Raceur
 		
 		
 		
+	}
+	
+	protected override void ProcessShutdown() {
+		
+		
+		float dSpeed = deceleration*Time.deltaTime;
+		shutdownTimer-=Time.deltaTime ;
+		if(shutdownTimer<0 || dSpeed >= speed) {
+			Stop();
+			shutdownTimer= -1f;
+			Debug.Log(name+" has finished");
+			return;
+		}
+		
+		speed -= dSpeed;
+		agent.velocity=(Circuit.Waypoint(0)-transform.position).normalized*speed;
+		SetEngineAudio(speed/topSpeed);
 	}
 	
 	void OnCollisionEnter(Collision collision) {
@@ -298,5 +318,7 @@ public class PlayerRaceur : Raceur
 		return mins+":"+secs.ToString("d2");
 	}
 	
-	
+	public static int Waypoint() {
+		return instance.GetWaypoint();
+	}
 }
