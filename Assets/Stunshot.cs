@@ -58,11 +58,5 @@ public class Stunshot : MonoBehaviour
 		GetComponent<Rigidbody>().velocity = vel;
 	}
 	
-	/*
-	public void CheckHittee(Raceur whoHit) {
-		if(whoHit == whoFired) {
-			//handlingCollision = false;
-			return;
-		}
-	}*/
+	
 }

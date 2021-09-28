@@ -151,13 +151,7 @@ public class PlayerRaceur : Raceur
 			return;
 		}
 		handlingCollision = true;
-		/* overcomplication
-		Stunshot s = collision.gameObject.GetComponent<Stunshot>();
-		if(s != null) {
-			s.CheckHittee(this);
-			return;
-		}
-		*/
+		
 		//hide the child GameObject(s)
 		for(int i=0;i<transform.childCount;i++) {
 			transform.GetChild(i).gameObject.SetActive(false);
