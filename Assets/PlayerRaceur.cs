@@ -136,6 +136,7 @@ public class PlayerRaceur : Raceur
 		shutdownTimer-=Time.deltaTime ;
 		if(shutdownTimer<0 || dSpeed >= speed) {
 			Stop();
+			speed=0;
 			shutdownTimer= -1f;
 			Debug.Log(name+" has finished");
 			return;

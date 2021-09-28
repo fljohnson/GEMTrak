@@ -6,11 +6,13 @@ public class ControlCenter : MonoBehaviour
 {
 	private static bool greenFlag = false;
 	private static float countdown = 5f;
+	private static string message;
 	
 	private static ControlCenter instance;
 	private static PlayerRaceur player;
 	public GUIStyle posnStyle;
 	public GUIStyle lapCountStyle;
+	public GUIStyle msgStyle;
 	public float interval=0.5f;
 	private static float nextUpdateTime;
 	private static int playerPos=1;
@@ -36,10 +38,15 @@ public class ControlCenter : MonoBehaviour
     
     void OnGUI () 
     {
+		if(!greenFlag) {
+
+			GUI.Label(new Rect (Screen.width/2 - 30,Screen.height/4, 60, 30), message,msgStyle);
+				
+		}
 		GUI.Label(new Rect (Screen.width - 120,0, 120, 30), "Position:"+playerPos,posnStyle);
 		
 		if(player.laps > 0) {
-			GUI.Label(new Rect (Screen.width - 120,30, 120, 30), "Laps:"+player.laps,lapCountStyle);
+			GUI.Label(new Rect (Screen.width - 120,30, 120, 30), "Laps:"+player.laps + " of "+lapsThisLevel,lapCountStyle);
 			GUI.Label(new Rect (Screen.width - 300,30, 180, 30), "Lap Time: "+player.LastLapTime(),lapCountStyle);
 		}
 		
@@ -52,19 +59,24 @@ public class ControlCenter : MonoBehaviour
 	}
 	
 	static void StartRace() {
-		if(countdown > 0f) {
-			if( (int)(countdown - Time.deltaTime)!=(int)(countdown))
-			{
-				Debug.Log("T-minus "+(int)(countdown));
-			}
-			countdown -= Time.deltaTime;
+		if(countdown <  1f) {
+				if(!instance.GetComponent<AudioSource>().isPlaying) {
+					instance.GetComponent<AudioSource>().Play();
+				}
+				message = "GO!";
+				instance.msgStyle.normal.textColor = Color.green;
+				if(countdown <= Time.deltaTime) {
+					greenFlag=true;
+						foreach(Raceur r in Circuit.instance.field) {
+							r.Go();
+					}
+				}
 		}
 		else {
-			Debug.Log("GO!");
-			greenFlag=true;
-			foreach(Raceur r in Circuit.instance.field) {
-				r.Go();
-			}
+			message = countdown.ToString("F0");
+			
 		}
+		
+			countdown -= Time.deltaTime;
 	}
 }
