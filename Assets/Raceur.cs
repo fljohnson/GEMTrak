@@ -19,6 +19,7 @@ public class Raceur : MonoBehaviour, IComparable
 	protected Transform muzzle;
 	protected float zappedTime;
 	protected bool zapped = false;
+	protected GameObject zappedEffect;
 	protected float shutdownTimer = -2f;
 	protected float deceleration;
     // Start is called before the first frame update
@@ -59,6 +60,7 @@ public class Raceur : MonoBehaviour, IComparable
     protected virtual void DoZapCycle() {
 		zapped = zappedTime> Time.time;
 		if(!zapped) {
+			Destroy(zappedEffect);
 			nextWaypoint = Mathf.Max(nextWaypoint,PlayerRaceur.Waypoint()+1);
 			if(nextWaypoint > Circuit.instance.turns.Length-1) {
 				nextWaypoint = Circuit.instance.turns.Length-1;
@@ -236,6 +238,7 @@ public class Raceur : MonoBehaviour, IComparable
 	
 	public void ImHit(float secsDown) {
 		Stop();
+		zappedEffect = ControlCenter.GetZapBubble(transform);
 		zapped = true;
 		zappedTime = Time.time+secsDown;
 	}

@@ -1304,6 +1304,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: afdc824b1a6a0271fb549da926726d3d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  zapBubble: {fileID: 8557254258820766606, guid: ba1edec80555d88b991226ee8d24d2d2,
+    type: 3}
   posnStyle:
     m_Name: position
     m_Normal:

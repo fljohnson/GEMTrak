@@ -10,6 +10,7 @@ public class ControlCenter : MonoBehaviour
 	
 	private static ControlCenter instance;
 	private static PlayerRaceur player;
+	public GameObject zapBubble;
 	public GUIStyle posnStyle;
 	public GUIStyle lapCountStyle;
 	public GUIStyle msgStyle;
@@ -79,4 +80,9 @@ public class ControlCenter : MonoBehaviour
 		
 			countdown -= Time.deltaTime;
 	}
+	
+	public static GameObject GetZapBubble(Transform carWorldXform) {
+		return Instantiate(instance.zapBubble,carWorldXform);
+	}
+		
 }
