@@ -1508,7 +1508,7 @@ MonoBehaviour:
     m_StretchWidth: 1
     m_StretchHeight: 0
   interval: 0.25
-  lapsThisLevel: 2
+  lapsThisLevel: 1
 --- !u!4 &697353577
 Transform:
   m_ObjectHideFlags: 0

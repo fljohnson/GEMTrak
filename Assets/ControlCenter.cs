@@ -48,7 +48,10 @@ public class ControlCenter : MonoBehaviour
 		
 		if(player.laps > 0) {
 			GUI.Label(new Rect (Screen.width - 120,30, 120, 30), "Laps:"+player.laps + " of "+lapsThisLevel,lapCountStyle);
-			GUI.Label(new Rect (Screen.width - 300,30, 180, 30), "Lap Time: "+player.LastLapTime(),lapCountStyle);
+			GUI.Label(new Rect (Screen.width - 300,30, 180, 60), "Last Lap: "+player.LastLapTime(),lapCountStyle);
+		}
+		if(player.laps < ControlCenter.LapsThisLevel()) {
+			GUI.Label(new Rect (Screen.width - 300,30, 180, 30), "Lap Time: "+player.LapTime(),lapCountStyle);
 		}
 		
 		GUI.Label(new Rect (Screen.width - 300,0, 120, 30), player.GetDashboardSpeed(),posnStyle);

@@ -31,8 +31,6 @@ public class PlayerRaceur : Raceur
 	private NavMeshPath reloadPath;
 	
 	public float maxDisplaySpeed = 173.984f;
-	private ArrayList lapTimes = new ArrayList();
-	private float lapStart;
 	
 	private static PlayerRaceur instance;
 	
@@ -60,7 +58,7 @@ public class PlayerRaceur : Raceur
     
     //see notes on Raceur.Go()
     public override void Go() {
-		lapStart = Time.time;
+		lapStart = -1f;
 	}
     //here's the new wrinkle: we set the relative destination as a function of transform.forward and agent.speed*deltaTime
     protected override void CheckPosition() {
@@ -261,6 +259,7 @@ public class PlayerRaceur : Raceur
 		return false;
 	}
 	protected override void OnTriggerEnter(Collider other) {
+		
 		if(!reloading) {
 			base.OnTriggerEnter(other);
 		}
@@ -296,24 +295,39 @@ public class PlayerRaceur : Raceur
 		return displaySpeed.ToString("f1")+"mph";
 	}
 	
+	/*
 	protected override void LapCompletion() {
-		int rawSec = (int)(Time.time - lapStart);
-		lapTimes.Add(rawSec);
-		lapStart = Time.time;
-	}
+		
+		
+	}*/
 	
 	public String LastLapTime() {
 		int i = lapTimes.Count-1;
 		if(i<0) {
 			return "FAIL";
 		}
-		int rawSecs = (int)lapTimes[i];
+		float rawSecs = (float)lapTimes[i];
 		int mins = (int)(rawSecs/60);
-		int secs = rawSecs-mins*60;
-		return mins+":"+secs.ToString("d2");
+		float secs = rawSecs-mins*60;
+		return mins+":"+secs.ToString("F3");
+	}
+	
+	public String LapTime() {
+		if(lapStart < 1f) {
+			return "0.000";
+		}
+		float rawSecs = (Time.time - lapStart)+penaltyTime;
+		int mins = (int)(rawSecs/60);
+		float secs = rawSecs-mins*60;
+		return mins+":"+secs.ToString("F3");
 	}
 	
 	public static int Waypoint() {
 		return instance.GetWaypoint();
+	}
+	
+	public override void TakePenalty(float secsDown) {
+		base.TakePenalty(secsDown);
+		Debug.Log("Penalty assessed");
 	}
 }

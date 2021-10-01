@@ -9,7 +9,7 @@ public class Raceur : MonoBehaviour, IComparable
 	
 	public GameObject stunBlastPrototype;
 	public float topSpeed;
-	public int laps = 0;
+	public int laps = -1;
 	protected int nextWaypoint = 0;
 	protected int curWaypoint =0;
 	protected NavMeshAgent agent;
@@ -22,10 +22,14 @@ public class Raceur : MonoBehaviour, IComparable
 	protected GameObject zappedEffect;
 	protected float shutdownTimer = -2f;
 	protected float deceleration;
+	protected float lapStart;
+	protected ArrayList lapTimes = new ArrayList();
+	protected float penaltyTime = 0f;
     // Start is called before the first frame update
     protected virtual void ActualStart()
     {
 		agent = GetComponent<NavMeshAgent>();
+		lapStart = -1f;
     }
 
     // Update is called once per frame
@@ -74,7 +78,6 @@ public class Raceur : MonoBehaviour, IComparable
     //in practice, ControlCenter calls Go() on all Raceurs upon "green light"
     public virtual void Go() {
         agent.SetDestination(Circuit.Waypoint(nextWaypoint));
-		
 	}
 	
     protected virtual void CheckPosition() {
@@ -96,8 +99,11 @@ public class Raceur : MonoBehaviour, IComparable
 	void HandleWaypointChange() {
 		if(curWaypoint >= Circuit.instance.turns.Length) {
 			laps++;
+			float rawSec = (float)(Time.time - lapStart);
+			lapTimes.Add(rawSec);
+			lapStart = Time.time;
 			LapCompletion();
-			//Debug.Log(name+":Lap "+laps+" completed");
+			
 			curWaypoint = 0;
 			if(laps == ControlCenter.LapsThisLevel()) {
 				shutdownTimer = 4f;
@@ -144,15 +150,21 @@ public class Raceur : MonoBehaviour, IComparable
 	}
 	
 	protected virtual void OnTriggerEnter(Collider other) {
+		if(lapStart == -1f) {
+			if(Array.IndexOf(Circuit.instance.turns,other.transform) == Circuit.instance.turns.Length-1) {
+				lapStart = Time.time;
+				return;
+			}
+		}
 		if(shutdownTimer > -2f) {
 			return;
 		}
 		int hitWaypoint = Array.IndexOf(Circuit.instance.turns,other.transform)+1;
-		if(AlreadyThere(hitWaypoint)) {
+		if(laps > -1 && AlreadyThere(hitWaypoint)) {
+			Debug.Log(name+":Already there:"+curWaypoint+" vs "+hitWaypoint);
 			return;
 		}
 		
-		//Debug.Log(name+":curWaypoint:"+curWaypoint+"; hitWaypoint:"+hitWaypoint);
 		curWaypoint = hitWaypoint;
 		
 		HandleWaypointChange();
@@ -225,6 +237,8 @@ public class Raceur : MonoBehaviour, IComparable
 	} 
 	
 	protected virtual void LapCompletion() {
+		
+		Debug.Log(name+" "+((float)lapTimes[laps-1]).ToString("F3"));
 	}
 	
 	public virtual Vector3 GetVelocity() {
@@ -241,6 +255,10 @@ public class Raceur : MonoBehaviour, IComparable
 		zappedEffect = ControlCenter.GetZapBubble(transform);
 		zapped = true;
 		zappedTime = Time.time+secsDown;
+	}
+	
+	public virtual void TakePenalty(float secsDown) {
+		penaltyTime += secsDown;
 	}
 	
 	protected virtual void Stop() {
