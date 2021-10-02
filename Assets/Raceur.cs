@@ -99,11 +99,11 @@ public class Raceur : MonoBehaviour, IComparable
 	void HandleWaypointChange() {
 		if(curWaypoint >= Circuit.instance.turns.Length) {
 			laps++;
-			float rawSec = (float)(Time.time - lapStart);
+			float rawSec = (float)(Time.time - lapStart)+penaltyTime;
 			lapTimes.Add(rawSec);
 			lapStart = Time.time;
 			LapCompletion();
-			
+			penaltyTime = 0f;
 			curWaypoint = 0;
 			if(laps == ControlCenter.LapsThisLevel()) {
 				shutdownTimer = 4f;
@@ -265,5 +265,35 @@ public class Raceur : MonoBehaviour, IComparable
 		agent.velocity=Vector3.zero;
 		agent.speed = 0;
 		
+	}
+	
+	public float TotalTime() {
+		if(laps < ControlCenter.LapsThisLevel()) {
+			return ProjectedLapTime()*ControlCenter.LapsThisLevel();
+		}
+		float rv = 0;
+		for(int i=0; i<laps; i++) {
+			rv+=(float)lapTimes[i];
+		}
+		return rv;
+	}
+	
+	public float FastestLap() {
+		if(laps < ControlCenter.LapsThisLevel()) {
+			return ProjectedLapTime();
+		}
+		float rv = (float)lapTimes[0];
+		for(int i=1; i<laps; i++) {
+			if(rv > (float)lapTimes[i]) {
+				rv=(float)lapTimes[i];
+			}
+		}
+		return rv;
+	}
+	
+	public float ProjectedLapTime() {
+		float timeSoFar=(float)(Time.time - lapStart)+penaltyTime;
+		float divisor = curWaypoint+1f;
+		return timeSoFar*(Circuit.instance.turns.Length)/divisor;
 	}
 }

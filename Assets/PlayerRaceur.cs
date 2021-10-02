@@ -295,11 +295,12 @@ public class PlayerRaceur : Raceur
 		return displaySpeed.ToString("f1")+"mph";
 	}
 	
-	/*
+	
 	protected override void LapCompletion() {
-		
-		
-	}*/
+		if(laps == ControlCenter.LapsThisLevel()) {
+			ControlCenter.PlayerFinished();
+		}
+	}
 	
 	public String LastLapTime() {
 		int i = lapTimes.Count-1;

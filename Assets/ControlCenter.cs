@@ -87,5 +87,41 @@ public class ControlCenter : MonoBehaviour
 	public static GameObject GetZapBubble(Transform carWorldXform) {
 		return Instantiate(instance.zapBubble,carWorldXform);
 	}
+	
+	public static void PlayerFinished() {
+		ArrayList sortedfield = new ArrayList(Circuit.instance.field);
+		sortedfield.Sort(new ByTime());
+		int netPlace = sortedfield.IndexOf(player)+1;
+		Debug.Log(netPlace);
+		//in qualifying (9-car field), if netPlace>6, did not qualify
 		
+	}	
+	
+	
+	
+	private class ByTime:IComparer {
+		public int Compare (object x, object y) {
+			Raceur carX=x as Raceur;
+			Raceur carY=y as Raceur;
+			
+			if(carX.TotalTime() < carY.TotalTime())
+			{
+				return 1;
+			}
+			if(carX.TotalTime() > carY.TotalTime())
+			{
+				return -1;
+			}
+			//okay, try fastest lap as a tiebreaker
+			if(carX.FastestLap() < carY.FastestLap())
+			{
+				return 1;
+			}
+			if(carX.FastestLap() > carY.FastestLap())
+			{
+				return -1;
+			}
+			return 0;
+		}
+	}
 }
