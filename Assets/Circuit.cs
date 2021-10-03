@@ -9,10 +9,12 @@ public class Circuit : MonoBehaviour
 	
 	public Raceur[] field;
 	public Transform[] turns;
+	private ArrayList distanceBetweenTurns = new ArrayList();
     // Start is called before the first frame update
     void Start()
     {
         instance = this;
+        CalculateDistanceBetweenTurns();
     }
 
     // Update is called once per frame
@@ -20,6 +22,23 @@ public class Circuit : MonoBehaviour
     {
         
     }
+    
+    void CalculateDistanceBetweenTurns() {
+		for(int i=1;i<turns.Length;i++) {
+			distanceBetweenTurns.Add(Raceur.HorizDistance(turns[i].position,turns[i-1].position));
+		}
+	}
+	
+	public float LapDistance(int end=-1){
+		float rv=0f;
+		if(end==-1) {
+			end+=distanceBetweenTurns.Count;
+		}
+		for(int i=0;i<(end+1);i++) {
+			rv+=(float)distanceBetweenTurns[i];
+		}
+		return rv;
+	}
     
     //returns coordinates of the zero-based ith waypoint (turn or finish line)
     public static Vector3 Waypoint(int i) {

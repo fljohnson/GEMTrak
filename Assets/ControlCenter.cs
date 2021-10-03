@@ -116,7 +116,7 @@ public class ControlCenter : MonoBehaviour
 			{
 				return 1;
 			}
-			Debug.Log("TIE:"+timeX.ToString("F3")+" vs "+timeY.ToString("F3"));
+			
 			//okay, try fastest lap as a tiebreaker
 			if(carX.FastestLap() < carY.FastestLap())
 			{

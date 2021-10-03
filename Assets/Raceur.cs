@@ -136,7 +136,7 @@ public class Raceur : MonoBehaviour, IComparable
 		if(myWaypoint < hisWaypoint) {
 			return 1;
 		}
-		//a finer grain: who's farther past the current waypoint? (FLJ, 9/23/2021)
+		//a finer grain: who's closer to the current waypoint? (FLJ, 9/23/2021)
 		
 		Vector3 coords = Circuit.Waypoint(GetWaypoint());
 		
@@ -200,7 +200,6 @@ public class Raceur : MonoBehaviour, IComparable
 		if(shutdownTimer<0 || dSpeed >= agent.speed) {
 			Stop();
 			shutdownTimer= -1f;
-			//Debug.Log(name+" has finished");
 			Debug.Log(name+" "+TotalTime().ToString("F3")+" "+FastestLap().ToString("F3"));
 			return;
 		}
@@ -235,7 +234,7 @@ public class Raceur : MonoBehaviour, IComparable
 		audiodeck.pitch = factor*2.7f;	
 	}
 	
-	public float HorizDistance(Vector3 end, Vector3 start) {
+	public static float HorizDistance(Vector3 end, Vector3 start) {
 		end.y=start.y;
 		return (end-start).magnitude;
 	} 
@@ -300,11 +299,10 @@ public class Raceur : MonoBehaviour, IComparable
 	public float ProjectedLapTime() {
 		
 		float timeSoFar=(float)(Time.time - lapStart)+penaltyTime;
-		float divisor = curWaypoint+1f;
-		float rv= timeSoFar*(Circuit.instance.turns.Length)/divisor;
-		if(rv < timeSoFar) {
-			Debug.Break();
-		}
+		Vector3 coords = Circuit.Waypoint(curWaypoint-1);
+		float divisor = Circuit.instance.LapDistance(curWaypoint-2)+HorizDistance(coords,transform.position);
+		float rv= timeSoFar*(Circuit.instance.LapDistance())/divisor;
+		
 		return rv;
 	}
 	
