@@ -136,7 +136,8 @@ public class PlayerRaceur : Raceur
 			Stop();
 			speed=0;
 			shutdownTimer= -1f;
-			Debug.Log(name+" has finished");
+			//Debug.Log(name+" has finished");
+			Debug.Log(name+" "+(TotalTime()).ToString("F3")+" "+FastestLap().ToString("F3"));
 			return;
 		}
 		

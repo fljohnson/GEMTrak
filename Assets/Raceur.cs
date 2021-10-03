@@ -25,6 +25,9 @@ public class Raceur : MonoBehaviour, IComparable
 	protected float lapStart;
 	protected ArrayList lapTimes = new ArrayList();
 	protected float penaltyTime = 0f;
+	protected float totalTime = -1f;
+	protected float fastestTime = -1f;
+	protected float projectedTime = -1f;
     // Start is called before the first frame update
     protected virtual void ActualStart()
     {
@@ -197,7 +200,8 @@ public class Raceur : MonoBehaviour, IComparable
 		if(shutdownTimer<0 || dSpeed >= agent.speed) {
 			Stop();
 			shutdownTimer= -1f;
-			Debug.Log(name+" has finished");
+			//Debug.Log(name+" has finished");
+			Debug.Log(name+" "+TotalTime().ToString("F3")+" "+FastestLap().ToString("F3"));
 			return;
 		}
 		
@@ -238,7 +242,7 @@ public class Raceur : MonoBehaviour, IComparable
 	
 	protected virtual void LapCompletion() {
 		
-		Debug.Log(name+" "+((float)lapTimes[laps-1]).ToString("F3"));
+		//Debug.Log(name+" "+(TotalTime()).ToString("F3"));
 	}
 	
 	public virtual Vector3 GetVelocity() {
@@ -268,19 +272,20 @@ public class Raceur : MonoBehaviour, IComparable
 	}
 	
 	public float TotalTime() {
-		if(laps < ControlCenter.LapsThisLevel()) {
-			return ProjectedLapTime()*ControlCenter.LapsThisLevel();
+		if(totalTime > -1f) {
+			return totalTime;
 		}
 		float rv = 0;
 		for(int i=0; i<laps; i++) {
 			rv+=(float)lapTimes[i];
 		}
-		return rv;
+		totalTime = rv;
+		return totalTime;
 	}
 	
 	public float FastestLap() {
-		if(laps < ControlCenter.LapsThisLevel()) {
-			return ProjectedLapTime();
+		if(fastestTime > -1f) {
+			return fastestTime;
 		}
 		float rv = (float)lapTimes[0];
 		for(int i=1; i<laps; i++) {
@@ -288,12 +293,30 @@ public class Raceur : MonoBehaviour, IComparable
 				rv=(float)lapTimes[i];
 			}
 		}
-		return rv;
+		fastestTime = rv;
+		return fastestTime;
 	}
 	
 	public float ProjectedLapTime() {
+		
 		float timeSoFar=(float)(Time.time - lapStart)+penaltyTime;
 		float divisor = curWaypoint+1f;
-		return timeSoFar*(Circuit.instance.turns.Length)/divisor;
+		float rv= timeSoFar*(Circuit.instance.turns.Length)/divisor;
+		if(rv < timeSoFar) {
+			Debug.Break();
+		}
+		return rv;
 	}
+	
+	public void CalculateTimes() {
+		if(laps < ControlCenter.LapsThisLevel()) {
+			projectedTime = ProjectedLapTime();
+			totalTime = projectedTime*ControlCenter.LapsThisLevel();
+			fastestTime = projectedTime;
+		}
+		float t1 = TotalTime();
+		float t2 = FastestLap();
+		
+	}
+	
 }

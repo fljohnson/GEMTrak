@@ -90,6 +90,9 @@ public class ControlCenter : MonoBehaviour
 	
 	public static void PlayerFinished() {
 		ArrayList sortedfield = new ArrayList(Circuit.instance.field);
+		foreach(Raceur car in sortedfield) {
+			car.CalculateTimes();
+		}
 		sortedfield.Sort(new ByTime());
 		int netPlace = sortedfield.IndexOf(player)+1;
 		Debug.Log(netPlace);
@@ -103,23 +106,25 @@ public class ControlCenter : MonoBehaviour
 		public int Compare (object x, object y) {
 			Raceur carX=x as Raceur;
 			Raceur carY=y as Raceur;
-			
-			if(carX.TotalTime() < carY.TotalTime())
-			{
-				return 1;
-			}
-			if(carX.TotalTime() > carY.TotalTime())
+			float timeX = carX.TotalTime();
+			float timeY = carY.TotalTime();
+			if(timeX< timeY)
 			{
 				return -1;
 			}
+			if(timeX > timeY)
+			{
+				return 1;
+			}
+			Debug.Log("TIE:"+timeX.ToString("F3")+" vs "+timeY.ToString("F3"));
 			//okay, try fastest lap as a tiebreaker
 			if(carX.FastestLap() < carY.FastestLap())
 			{
-				return 1;
+				return -1;
 			}
 			if(carX.FastestLap() > carY.FastestLap())
 			{
-				return -1;
+				return 1;
 			}
 			return 0;
 		}
