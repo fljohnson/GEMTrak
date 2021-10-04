@@ -1,12 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 public class ControlCenter : MonoBehaviour
 {
 	private static bool greenFlag = false;
 	private static float countdown = 5f;
 	private static string message;
+	private static ArrayList finished = new ArrayList();
+	public static bool raceInProgress = true;
 	
 	private static ControlCenter instance;
 	private static PlayerRaceur player;
@@ -88,6 +91,31 @@ public class ControlCenter : MonoBehaviour
 		return Instantiate(instance.zapBubble,carWorldXform);
 	}
 	
+	public static void NotifyFinished(Raceur car) {
+		//if there are at least three finishers, sort them by time to decide qualification
+		//allow for the scenario that one of the first three cars MAY have a longer time than the player
+		car.CalculateTimes();
+		finished.Add(car);
+		if(finished.Count < 3) { //TODO:replace with max position (6 in qualifying  field of 9)
+			return;
+		}
+		finished.Sort(new ByTime());
+		int netPlace = finished.IndexOf(player)+1;
+		if(netPlace > 0) {
+			return; //let PlayerFinished() deal
+		}
+		//o-kay, give the player a little longer to cross the finish line (coming in "live last")
+		//if the player is really far behind ("dead last"), end this madness
+		//In the '80s and '90s, developers simply set a time limit to completing the course
+		//Then again, their "CPU" cars weren't actually competing against the player
+		float interval = (finished[2] as Raceur).TotalTime() - (finished[0] as Raceur).TotalTime();
+		if(player.ProjectedLapTime() > (finished[2] as Raceur).TotalTime()+interval)
+		{
+			DidNotQualify();
+		}
+			
+		
+	}
 	public static void PlayerFinished() {
 		ArrayList sortedfield = new ArrayList(Circuit.instance.field);
 		foreach(Raceur car in sortedfield) {
@@ -95,11 +123,35 @@ public class ControlCenter : MonoBehaviour
 		}
 		sortedfield.Sort(new ByTime());
 		int netPlace = sortedfield.IndexOf(player)+1;
-		Debug.Log(netPlace);
+		if(netPlace > 3) {
+			DidNotQualify();
+		}
+		else {
+			Qualified(netPlace);
+		}
 		//in qualifying (9-car field), if netPlace>6, did not qualify
 		
 	}	
+	public static void DidNotQualify() {
+		
+		foreach(Raceur car in Circuit.instance.field) {
+			car.RaceEnded();
+		}
+		raceInProgress = false;
+		DisplayResults();
+		Debug.Log("Didn't qualify");
+	}
 	
+	public static void Qualified(int position) {
+		raceInProgress=false;
+		DisplayResults();
+		Debug.Log("Grid position will be "+position);
+	}
+	
+	public static void DisplayResults() {
+		//TODO:List the X lowest times, if the player is among them, highlight it
+		//TODO: If the player didn't qualify, display "YOUR TIME" below
+	}
 	
 	
 	private class ByTime:IComparer {
@@ -108,6 +160,7 @@ public class ControlCenter : MonoBehaviour
 			Raceur carY=y as Raceur;
 			float timeX = carX.TotalTime();
 			float timeY = carY.TotalTime();
+			
 			if(timeX< timeY)
 			{
 				return -1;

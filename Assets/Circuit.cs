@@ -15,6 +15,7 @@ public class Circuit : MonoBehaviour
     {
         instance = this;
         CalculateDistanceBetweenTurns();
+        GetField();
     }
 
     // Update is called once per frame
@@ -66,5 +67,9 @@ public class Circuit : MonoBehaviour
 	public static int Place(Raceur inquirer) {
 		return Array.IndexOf(instance.field, inquirer)+1;
 	}
-		
+	
+	
+	void GetField() {
+		field = FindObjectsOfType<Raceur>();	
+	}
 }

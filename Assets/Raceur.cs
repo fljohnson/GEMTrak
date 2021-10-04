@@ -109,6 +109,7 @@ public class Raceur : MonoBehaviour, IComparable
 			penaltyTime = 0f;
 			curWaypoint = 0;
 			if(laps == ControlCenter.LapsThisLevel()) {
+				ControlCenter.NotifyFinished(this);
 				shutdownTimer = 4f;
 				deceleration=GetVelocity().magnitude/4f; //we'll be explicitly subtracting, so deceleration > 0
 				return;
@@ -279,6 +280,7 @@ public class Raceur : MonoBehaviour, IComparable
 			rv+=(float)lapTimes[i];
 		}
 		totalTime = rv;
+		
 		return totalTime;
 	}
 	
@@ -293,6 +295,7 @@ public class Raceur : MonoBehaviour, IComparable
 			}
 		}
 		fastestTime = rv;
+		
 		return fastestTime;
 	}
 	
@@ -315,6 +318,20 @@ public class Raceur : MonoBehaviour, IComparable
 		float t1 = TotalTime();
 		float t2 = FastestLap();
 		
+	}
+	
+	public virtual void RaceEnded() {
+		Stop();
+		SetEngineAudio(0f);
+		shutdownTimer = -1f;
+	}
+	
+	public float CurrentTime() {
+		float timeSoFar=(float)(Time.time - lapStart)+penaltyTime;
+		for(int i=0; i<laps; i++) {
+			timeSoFar+=(float)lapTimes[i];
+		}
+		return timeSoFar;
 	}
 	
 }

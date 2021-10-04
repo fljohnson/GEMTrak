@@ -31,6 +31,7 @@ public class PlayerRaceur : Raceur
 	private NavMeshPath reloadPath;
 	
 	public float maxDisplaySpeed = 173.984f;
+	private float lastLapSecs = 0f;
 	
 	private static PlayerRaceur instance;
 	
@@ -318,7 +319,11 @@ public class PlayerRaceur : Raceur
 		if(lapStart < 1f) {
 			return "0.000";
 		}
-		float rawSecs = (Time.time - lapStart)+penaltyTime;
+		float rawSecs = lastLapSecs;
+		if(ControlCenter.raceInProgress) {
+			rawSecs = (Time.time - lapStart)+penaltyTime;
+			lastLapSecs = rawSecs;
+		}
 		int mins = (int)(rawSecs/60);
 		float secs = rawSecs-mins*60;
 		return mins+":"+secs.ToString("F3");
@@ -331,5 +336,10 @@ public class PlayerRaceur : Raceur
 	public override void TakePenalty(float secsDown) {
 		base.TakePenalty(secsDown);
 		Debug.Log("Penalty assessed");
+	}
+	
+	public override void RaceEnded() {
+		speed=0;
+		base.RaceEnded();
 	}
 }
