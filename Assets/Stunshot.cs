@@ -47,7 +47,7 @@ public class Stunshot : MonoBehaviour
 			handlingCollision = false;
 			return;
 		}
-		whoFired.TakePenalty(5f);
+		whoFired.TakePenalty(2.5f);
 		whoHit.ImHit(6f);
 		Destroy(gameObject);
 	}

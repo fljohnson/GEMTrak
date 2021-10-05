@@ -9,6 +9,7 @@ public class ControlCenter : MonoBehaviour
 	private static float countdown = 5f;
 	private static string message;
 	private static ArrayList finished = new ArrayList();
+	private static ArrayList results;
 	public static bool raceInProgress = true;
 	
 	private static ControlCenter instance;
@@ -17,10 +18,13 @@ public class ControlCenter : MonoBehaviour
 	public GUIStyle posnStyle;
 	public GUIStyle lapCountStyle;
 	public GUIStyle msgStyle;
+	public GUIStyle finalPosnStyle;
 	public float interval=0.5f;
 	private static float nextUpdateTime;
 	private static int playerPos=1;
 	public int lapsThisLevel = 2; //will aid in level design
+	public int qualifying = 3; //so will this
+	
     // Start is called before the first frame update
     void Start()
     {
@@ -58,6 +62,9 @@ public class ControlCenter : MonoBehaviour
 		}
 		
 		GUI.Label(new Rect (Screen.width - 300,0, 120, 30), player.GetDashboardSpeed(),posnStyle);
+		if(results!=null) {
+			DisplayResults();
+		}
 		
     }
     
@@ -96,7 +103,7 @@ public class ControlCenter : MonoBehaviour
 		//allow for the scenario that one of the first three cars MAY have a longer time than the player
 		car.CalculateTimes();
 		finished.Add(car);
-		if(finished.Count < 3) { //TODO:replace with max position (6 in qualifying  field of 9)
+		if(finished.Count < instance.qualifying) { 
 			return;
 		}
 		finished.Sort(new ByTime());
@@ -108,10 +115,10 @@ public class ControlCenter : MonoBehaviour
 		//if the player is really far behind ("dead last"), end this madness
 		//In the '80s and '90s, developers simply set a time limit to completing the course
 		//Then again, their "CPU" cars weren't actually competing against the player
-		float interval = (finished[2] as Raceur).TotalTime() - (finished[0] as Raceur).TotalTime();
-		if(player.ProjectedLapTime() > (finished[2] as Raceur).TotalTime()+interval)
+		float interval = (finished[instance.qualifying-1] as Raceur).TotalTime() - (finished[0] as Raceur).TotalTime();
+		if(player.ProjectedLapTime() > (finished[instance.qualifying-1] as Raceur).TotalTime()+interval)
 		{
-			DidNotQualify();
+			DidNotQualify(finished);
 		}
 			
 		
@@ -123,34 +130,54 @@ public class ControlCenter : MonoBehaviour
 		}
 		sortedfield.Sort(new ByTime());
 		int netPlace = sortedfield.IndexOf(player)+1;
-		if(netPlace > 3) {
-			DidNotQualify();
+		if(netPlace > instance.qualifying) {
+			DidNotQualify(sortedfield);
 		}
 		else {
-			Qualified(netPlace);
+			Qualified(netPlace,sortedfield);
 		}
 		//in qualifying (9-car field), if netPlace>6, did not qualify
 		
 	}	
-	public static void DidNotQualify() {
+	public static void DidNotQualify(ArrayList sortedfield) {
 		
 		foreach(Raceur car in Circuit.instance.field) {
-			car.RaceEnded();
+			car.BeginShutdown();
 		}
 		raceInProgress = false;
-		DisplayResults();
+		results = sortedfield;
 		Debug.Log("Didn't qualify");
 	}
 	
-	public static void Qualified(int position) {
+	public static void Qualified(int position,ArrayList sortedfield) {
 		raceInProgress=false;
-		DisplayResults();
+		results = sortedfield;
 		Debug.Log("Grid position will be "+position);
 	}
 	
-	public static void DisplayResults() {
-		//TODO:List the X lowest times, if the player is among them, highlight it
-		//TODO: If the player didn't qualify, display "YOUR TIME" below
+	public void DisplayResults() {
+		bool playerIsIn = false; //can mean "in the ensuing race" or "on the podium"
+		//List the X lowest times, if the player is among them, highlight it
+		int i=0;
+		foreach(Raceur r in results) {
+			string phrase = "";
+			if(r == player) {
+				phrase = "YOUR TIME:";
+				playerIsIn = true;
+			}
+			phrase += FormatTime(r.TotalTime());
+			GUI.Label(new Rect (Screen.width/2 - 120,60+35*i, 200, 30), phrase,finalPosnStyle);
+			i++;
+			if(i == qualifying) {
+				break;
+			}
+		}
+		//if not, show the player's time down below
+		if(!playerIsIn) {
+			//Debug.Log();
+			GUI.Label(new Rect (Screen.width/2 - 120,60+35*i, 200, 30), "Your Time:"+FormatTime(player.TotalTime()),finalPosnStyle);
+		}
+		
 	}
 	
 	
@@ -181,5 +208,13 @@ public class ControlCenter : MonoBehaviour
 			}
 			return 0;
 		}
+	}
+	
+	public static string FormatTime(float rawsecs) {
+		int min=(int)(rawsecs/60);
+		int sec=(int)rawsecs-min*60;
+		int fraction = (int)(1000*(rawsecs - (sec+min*60)));
+		
+		return min.ToString("D2")+":"+sec.ToString("D2")+"."+fraction.ToString("D3");
 	}
 }

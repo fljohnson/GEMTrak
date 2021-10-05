@@ -73,7 +73,7 @@ public class Raceur : MonoBehaviour, IComparable
 				nextWaypoint = Circuit.instance.turns.Length-1;
 			}
 			agent.SetDestination(Circuit.Waypoint(nextWaypoint));
-			Debug.Log(name+":Back in the race");
+			//Debug.Log(name+":Back in the race");
 			
 		}
 	}
@@ -104,14 +104,14 @@ public class Raceur : MonoBehaviour, IComparable
 			laps++;
 			float rawSec = (float)(Time.time - lapStart)+penaltyTime;
 			lapTimes.Add(rawSec);
+			ClearPresumedTimes();
 			lapStart = Time.time;
 			LapCompletion();
 			penaltyTime = 0f;
 			curWaypoint = 0;
 			if(laps == ControlCenter.LapsThisLevel()) {
 				ControlCenter.NotifyFinished(this);
-				shutdownTimer = 4f;
-				deceleration=GetVelocity().magnitude/4f; //we'll be explicitly subtracting, so deceleration > 0
+				
 				return;
 			}
 		}
@@ -127,6 +127,10 @@ public class Raceur : MonoBehaviour, IComparable
 		return curWaypoint;
 	}
 	
+	public void BeginShutdown() {
+		shutdownTimer = 4f;
+		deceleration=GetVelocity().magnitude/4f; //we'll be explicitly subtracting, so deceleration > 0
+	}
 	public int CompareTo (object obj) {
 		int myWaypoint = (GetWaypoint()-1)+laps*Circuit.instance.turns.Length;
 		Raceur him = (obj as Raceur);
@@ -200,8 +204,9 @@ public class Raceur : MonoBehaviour, IComparable
 		shutdownTimer-=Time.deltaTime ;
 		if(shutdownTimer<0 || dSpeed >= agent.speed) {
 			Stop();
+			SetEngineAudio(0f);
 			shutdownTimer= -1f;
-			Debug.Log(name+" "+TotalTime().ToString("F3")+" "+FastestLap().ToString("F3"));
+			//Debug.Log(name+" "+TotalTime().ToString("F3")+" "+FastestLap().ToString("F3"));
 			return;
 		}
 		
@@ -318,6 +323,12 @@ public class Raceur : MonoBehaviour, IComparable
 		float t1 = TotalTime();
 		float t2 = FastestLap();
 		
+	}
+	
+	public void ClearPresumedTimes() {
+		projectedTime = -1f;
+		totalTime = -1f;
+		fastestTime = -1f;
 	}
 	
 	public virtual void RaceEnded() {

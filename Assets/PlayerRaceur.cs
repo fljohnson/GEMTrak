@@ -136,9 +136,10 @@ public class PlayerRaceur : Raceur
 		if(shutdownTimer<0 || dSpeed >= speed) {
 			Stop();
 			speed=0;
+			SetEngineAudio(0f);
 			shutdownTimer= -1f;
 			//Debug.Log(name+" has finished");
-			Debug.Log(name+" "+(TotalTime()).ToString("F3")+" "+FastestLap().ToString("F3"));
+			//Debug.Log(name+" "+(TotalTime()).ToString("F3")+" "+FastestLap().ToString("F3"));
 			return;
 		}
 		
@@ -148,6 +149,9 @@ public class PlayerRaceur : Raceur
 	}
 	
 	void OnCollisionEnter(Collision collision) {
+		if(laps == ControlCenter.LapsThisLevel()) {
+			return;
+		}
 		if(handlingCollision) {
 			return;
 		}
@@ -310,9 +314,12 @@ public class PlayerRaceur : Raceur
 			return "FAIL";
 		}
 		float rawSecs = (float)lapTimes[i];
+		/*
 		int mins = (int)(rawSecs/60);
 		float secs = rawSecs-mins*60;
 		return mins+":"+secs.ToString("F3");
+		*/
+		return ControlCenter.FormatTime(rawSecs);
 	}
 	
 	public String LapTime() {
@@ -324,9 +331,12 @@ public class PlayerRaceur : Raceur
 			rawSecs = (Time.time - lapStart)+penaltyTime;
 			lastLapSecs = rawSecs;
 		}
+		/*
 		int mins = (int)(rawSecs/60);
 		float secs = rawSecs-mins*60;
 		return mins+":"+secs.ToString("F3");
+		*/
+		return ControlCenter.FormatTime(rawSecs);
 	}
 	
 	public static int Waypoint() {
