@@ -146,24 +146,25 @@ public class ControlCenter : MonoBehaviour
 		}
 		raceInProgress = false;
 		results = sortedfield;
-		Debug.Log("Didn't qualify");
 	}
 	
 	public static void Qualified(int position,ArrayList sortedfield) {
+		foreach(Raceur car in Circuit.instance.field) {
+			car.BeginShutdown();
+		}
 		raceInProgress=false;
 		results = sortedfield;
-		Debug.Log("Grid position will be "+position);
 	}
 	
 	public void DisplayResults() {
-		bool playerIsIn = false; //can mean "in the ensuing race" or "on the podium"
+		int playerIsIn = -1; //can mean "in the ensuing race" or "on the podium"
 		//List the X lowest times, if the player is among them, highlight it
 		int i=0;
 		foreach(Raceur r in results) {
 			string phrase = "";
 			if(r == player) {
 				phrase = "YOUR TIME:";
-				playerIsIn = true;
+				playerIsIn = i+1;
 			}
 			phrase += FormatTime(r.TotalTime());
 			GUI.Label(new Rect (Screen.width/2 - 120,60+35*i, 200, 30), phrase,finalPosnStyle);
@@ -173,9 +174,23 @@ public class ControlCenter : MonoBehaviour
 			}
 		}
 		//if not, show the player's time down below
-		if(!playerIsIn) {
+		if(playerIsIn == -1) {
 			//Debug.Log();
-			GUI.Label(new Rect (Screen.width/2 - 120,60+35*i, 200, 30), "Your Time:"+FormatTime(player.TotalTime()),finalPosnStyle);
+			float playerTime = player.TotalTime();
+			if(playerTime == 0f) {
+				playerTime =player.ProjectedLapTime();
+			}
+			GUI.Label(new Rect (Screen.width/2 - 120,95+35*i, 200, 30), "Your Time:"+FormatTime(playerTime),finalPosnStyle);
+			GUI.Label(new Rect (Screen.width/2 - 120,130+35*i, 200, 30), "Didn't qualify",finalPosnStyle);
+		
+		}
+		else
+		{
+			string msg="Your grid position:"+playerIsIn;
+			if(playerIsIn == 1) {
+				msg="POLE POSITION!";
+			}
+			GUI.Label(new Rect (Screen.width/2 - 120,95+35*i, 200, 30), msg,finalPosnStyle);
 		}
 		
 	}

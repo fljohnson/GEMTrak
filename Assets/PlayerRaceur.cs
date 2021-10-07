@@ -133,7 +133,7 @@ public class PlayerRaceur : Raceur
 		
 		float dSpeed = deceleration*Time.deltaTime;
 		shutdownTimer-=Time.deltaTime ;
-		if(shutdownTimer<0 || dSpeed >= speed) {
+		if(shutdownTimer<Time.deltaTime || dSpeed >= speed) {
 			Stop();
 			speed=0;
 			SetEngineAudio(0f);

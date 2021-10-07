@@ -202,7 +202,7 @@ public class Raceur : MonoBehaviour, IComparable
 		
 		float dSpeed = deceleration*Time.deltaTime;
 		shutdownTimer-=Time.deltaTime ;
-		if(shutdownTimer<0 || dSpeed >= agent.speed) {
+		if(shutdownTimer<Time.deltaTime || dSpeed >= agent.speed) {
 			Stop();
 			SetEngineAudio(0f);
 			shutdownTimer= -1f;
