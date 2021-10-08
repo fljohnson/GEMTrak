@@ -1,15 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.Assertions;
 
 public class ControlCenter : MonoBehaviour
 {
-	private static bool greenFlag = false;
-	private static float countdown = 5f;
+	private static bool greenFlag = false; //should be instance
+	private static float countdown = 5f; //should be instance
 	private static string message;
 	private static ArrayList finished = new ArrayList();
-	private static ArrayList results;
+	private static ArrayList results; //should be instance
 	public static bool raceInProgress = true;
 	
 	private static ControlCenter instance;
@@ -24,10 +25,16 @@ public class ControlCenter : MonoBehaviour
 	private static int playerPos=1;
 	public int lapsThisLevel = 2; //will aid in level design
 	public int minimumPlace = 3; //so will this
+	public static bool qualifyMode = true;
+	static float sinkInTime =10f;
 	
     // Start is called before the first frame update
     void Start()
     {
+		if(!qualifyMode) {
+			Debug.Log("It worked");
+			Debug.Break();
+		}
         instance = this;
         player=GameObject.FindWithTag("Player").GetComponent<PlayerRaceur>();
     }
@@ -38,6 +45,11 @@ public class ControlCenter : MonoBehaviour
 		if(!greenFlag) {
 			StartRace();
 		}
+		if(!raceInProgress && qualifyMode) {
+			SetupRace();
+			return;
+		}
+			
         if(Time.time > nextUpdateTime) {
 			playerPos = player.GetPlace();
 			nextUpdateTime = Time.time+interval;
@@ -154,6 +166,7 @@ public class ControlCenter : MonoBehaviour
 		}
 		raceInProgress=false;
 		results = sortedfield;
+		sinkInTime+=Time.time;
 	}
 	
 	public void DisplayResults() {
@@ -203,6 +216,7 @@ public class ControlCenter : MonoBehaviour
 				}
 			}
 			GUI.Label(new Rect (Screen.width/2 - 120,95+35*i, 200, 30), msg,finalPosnStyle);
+			
 		}
 		
 	}
@@ -258,5 +272,17 @@ public class ControlCenter : MonoBehaviour
                }
                return ""+number+"th";
        }
+       
+       
+     public static void SetupRace() {
+		 if(sinkInTime > Time.time) {
+			 return;
+		 }
+		 qualifyMode = false;
+		 results = null;
+		 SceneManager.LoadScene(0);
+		 countdown = 5f;
+		 greenFlag = false;
+	 }
 
 }
