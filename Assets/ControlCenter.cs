@@ -23,7 +23,7 @@ public class ControlCenter : MonoBehaviour
 	private static float nextUpdateTime;
 	private static int playerPos=1;
 	public int lapsThisLevel = 2; //will aid in level design
-	public int qualifying = 3; //so will this
+	public int minimumPlace = 3; //so will this
 	
     // Start is called before the first frame update
     void Start()
@@ -103,7 +103,7 @@ public class ControlCenter : MonoBehaviour
 		//allow for the scenario that one of the first three cars MAY have a longer time than the player
 		car.CalculateTimes();
 		finished.Add(car);
-		if(finished.Count < instance.qualifying) { 
+		if(finished.Count < instance.minimumPlace) { 
 			return;
 		}
 		finished.Sort(new ByTime());
@@ -115,8 +115,8 @@ public class ControlCenter : MonoBehaviour
 		//if the player is really far behind ("dead last"), end this madness
 		//In the '80s and '90s, developers simply set a time limit to completing the course
 		//Then again, their "CPU" cars weren't actually competing against the player
-		float interval = (finished[instance.qualifying-1] as Raceur).TotalTime() - (finished[0] as Raceur).TotalTime();
-		if(player.ProjectedLapTime() > (finished[instance.qualifying-1] as Raceur).TotalTime()+interval)
+		float interval = (finished[instance.minimumPlace-1] as Raceur).TotalTime() - (finished[0] as Raceur).TotalTime();
+		if(player.ProjectedLapTime() > (finished[instance.minimumPlace-1] as Raceur).TotalTime()+interval)
 		{
 			DidNotQualify(finished);
 		}
@@ -130,13 +130,13 @@ public class ControlCenter : MonoBehaviour
 		}
 		sortedfield.Sort(new ByTime());
 		int netPlace = sortedfield.IndexOf(player)+1;
-		if(netPlace > instance.qualifying) {
+		if(netPlace > instance.minimumPlace) {
 			DidNotQualify(sortedfield);
 		}
 		else {
 			Qualified(netPlace,sortedfield);
 		}
-		//in qualifying (9-car field), if netPlace>6, did not qualify
+		//TODO: in qualifying (9-car field), if netPlace>6, did not qualify
 		
 	}	
 	public static void DidNotQualify(ArrayList sortedfield) {
@@ -169,7 +169,7 @@ public class ControlCenter : MonoBehaviour
 			phrase += FormatTime(r.TotalTime());
 			GUI.Label(new Rect (Screen.width/2 - 120,60+35*i, 200, 30), phrase,finalPosnStyle);
 			i++;
-			if(i == qualifying) {
+			if(i == minimumPlace) {
 				break;
 			}
 		}
@@ -181,14 +181,26 @@ public class ControlCenter : MonoBehaviour
 				playerTime =player.ProjectedLapTime();
 			}
 			GUI.Label(new Rect (Screen.width/2 - 120,95+35*i, 200, 30), "Your Time:"+FormatTime(playerTime),finalPosnStyle);
-			GUI.Label(new Rect (Screen.width/2 - 120,130+35*i, 200, 30), "Didn't qualify",finalPosnStyle);
+			if(qualifyMode) {
+				GUI.Label(new Rect (Screen.width/2 - 120,130+35*i, 200, 30), "Didn't qualify",finalPosnStyle);
+			}
 		
 		}
 		else
 		{
-			string msg="Your grid position:"+playerIsIn;
+			string msg ="You've made the podium:"+Ordinalize(playerIsIn)+" place";
+
+			if(qualifyMode) {
+				msg="Your grid position:"+playerIsIn;
+			}
 			if(playerIsIn == 1) {
-				msg="POLE POSITION!";
+				if(qualifyMode) {
+					msg="POLE POSITION!";
+				}
+				else
+				{
+					msg="WINNER!";
+				}
 			}
 			GUI.Label(new Rect (Screen.width/2 - 120,95+35*i, 200, 30), msg,finalPosnStyle);
 		}
@@ -232,4 +244,19 @@ public class ControlCenter : MonoBehaviour
 		
 		return min.ToString("D2")+":"+sec.ToString("D2")+"."+fraction.ToString("D3");
 	}
+	
+	public static string Ordinalize(int number) {
+              switch(number) {
+				   case 1:
+						   return "first";
+				   case 2:
+						   return "second";
+				   case 3:
+						   return "third";
+				   default:
+						   break;
+               }
+               return ""+number+"th";
+       }
+
 }
