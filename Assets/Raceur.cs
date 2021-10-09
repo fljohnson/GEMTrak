@@ -316,9 +316,15 @@ public class Raceur : MonoBehaviour, IComparable
 	
 	public void CalculateTimes() {
 		if(laps < ControlCenter.LapsThisLevel()) {
+			
 			projectedTime = ProjectedLapTime();
-			totalTime = projectedTime*ControlCenter.LapsThisLevel();
-			fastestTime = projectedTime;
+			totalTime = TotalTime() + projectedTime*(ControlCenter.LapsThisLevel() - laps);
+			if(laps<1) {
+				fastestTime = projectedTime;
+			}
+			else {
+				fastestTime = Mathf.Min(FastestLap(),projectedTime);
+			}
 		}
 		float t1 = TotalTime();
 		float t2 = FastestLap();

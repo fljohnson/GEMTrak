@@ -12,6 +12,7 @@ public class ControlCenter : MonoBehaviour
 	private static ArrayList finished = new ArrayList();
 	private static ArrayList results; //should be instance
 	public static bool raceInProgress = true;
+	private static Dictionary<int,string> startingGrid = new Dictionary<int,string>(); //names of racers
 	
 	private static ControlCenter instance;
 	private static PlayerRaceur player;
@@ -45,7 +46,7 @@ public class ControlCenter : MonoBehaviour
 		if(!greenFlag) {
 			StartRace();
 		}
-		if(!raceInProgress && qualifyMode) {
+		if(!raceInProgress && sinkInTime > 10f) {
 			SetupRace();
 			return;
 		}
@@ -278,11 +279,24 @@ public class ControlCenter : MonoBehaviour
 		 if(sinkInTime > Time.time) {
 			 return;
 		 }
+		 for(int i=0;i<instance.minimumPlace;i++) {
+			 startingGrid[i]=(results[i] as Raceur).name;
+		 }
+		 sinkInTime = 10f;
 		 qualifyMode = false;
 		 results = null;
-		 SceneManager.LoadScene(0);
+		 SceneManager.LoadScene(1);
 		 countdown = 5f;
 		 greenFlag = false;
+	 }
+	 
+	 public static int GetGridPosition(string carName) {
+		 for(int i=0;i<instance.minimumPlace;i++){
+			 if(startingGrid[i] == carName) {
+				 return i;
+			 }
+		 }
+		 return -1;
 	 }
 
 }

@@ -4,5 +4,11 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/Fujiyama3.unity
+    guid: cd4615e2eb1a75c80bca209b7e608ef2
+  - enabled: 1
+    path: Assets/Scenes/FujiyamaRace.unity
+    guid: 1464c481b9ccc07cab4a2e4b4db678d8
   m_configObjects: {}

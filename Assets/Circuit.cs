@@ -7,6 +7,7 @@ public class Circuit : MonoBehaviour
 {
 	public static Circuit instance;
 	
+	public Vector3[] gridPositions;
 	public Raceur[] field;
 	public Transform[] turns;
 	private ArrayList distanceBetweenTurns = new ArrayList();
@@ -71,5 +72,18 @@ public class Circuit : MonoBehaviour
 	
 	void GetField() {
 		field = FindObjectsOfType<Raceur>();	
+		if(ControlCenter.qualifyMode) {
+			return;
+		}
+		//Deactivate all cars that didn't qualify
+		foreach(Raceur r in field) {
+			int position = ControlCenter.GetGridPosition(r.name);
+			if(position == -1) {
+				r.gameObject.SetActive(false);//why not destroy?
+			}
+			else {
+				r.transform.position = gridPositions[position];
+			}
+		}
 	}
 }
