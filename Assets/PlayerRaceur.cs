@@ -76,7 +76,7 @@ public class PlayerRaceur : Raceur
 			}
 			return;
 		}
-		if(Input.GetKeyDown("space")) {
+		if(ControlCenter.UserHitFire()) {
 			Fire();
 		}
 		
