@@ -86,4 +86,11 @@ public class Circuit : MonoBehaviour
 			}
 		}
 	}
+	
+	public static int PriorWaypointID(int current,int howfarback=-1) {
+		if(current==0) {
+			return Circuit.instance.turns.Length+howfarback;
+		}
+		return current+howfarback;
+	}
 }

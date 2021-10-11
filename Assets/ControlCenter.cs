@@ -21,21 +21,20 @@ public class ControlCenter : MonoBehaviour
 	public GUIStyle lapCountStyle;
 	public GUIStyle msgStyle;
 	public GUIStyle finalPosnStyle;
+	public GUIStyle instructionsStyle;
 	public float interval=0.5f;
 	private static float nextUpdateTime;
 	private static int playerPos=1;
 	public int lapsThisLevel = 2; //will aid in level design
 	public int minimumPlace = 3; //so will this
 	public static bool qualifyMode = true;
-	static float sinkInTime =10f;
+	static float sinkInTime =5f;
+	static float playerTime;
+	static int raceMode = 4;
 	
     // Start is called before the first frame update
     void Start()
     {
-		if(!qualifyMode) {
-			Debug.Log("It worked");
-			Debug.Break();
-		}
         instance = this;
         player=GameObject.FindWithTag("Player").GetComponent<PlayerRaceur>();
     }
@@ -43,10 +42,19 @@ public class ControlCenter : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+		if(raceMode > 2 || player == null) {
+			return;
+		}
+		if(Input.GetKey(KeyCode.Escape)) {
+			#if UNITY_EDITOR
+			UnityEditor.EditorApplication.isPlaying = false;
+			#endif
+			Application.Quit();
+		}
 		if(!greenFlag) {
 			StartRace();
 		}
-		if(!raceInProgress && sinkInTime > 10f) {
+		if(!raceInProgress && sinkInTime > 5f) {
 			SetupRace();
 			return;
 		}
@@ -59,6 +67,11 @@ public class ControlCenter : MonoBehaviour
     
     void OnGUI () 
     {
+		if(raceMode ==4 ||player==null)
+		{
+			ShowInstructions();
+			return;
+		}
 		if(!greenFlag) {
 
 			GUI.Label(new Rect (Screen.width/2 - 30,Screen.height/4, 60, 30), message,msgStyle);
@@ -67,11 +80,11 @@ public class ControlCenter : MonoBehaviour
 		GUI.Label(new Rect (Screen.width - 120,0, 120, 30), "Position:"+playerPos,posnStyle);
 		
 		if(player.laps > 0) {
-			GUI.Label(new Rect (Screen.width - 120,30, 120, 30), "Laps:"+player.laps + " of "+lapsThisLevel,lapCountStyle);
-			GUI.Label(new Rect (Screen.width - 300,30, 180, 60), "Last Lap: "+player.LastLapTime(),lapCountStyle);
+			GUI.Label(new Rect (Screen.width - 360,40, 180, 60), "Last Lap: "+player.LastLapTime(),lapCountStyle);
 		}
 		if(player.laps < ControlCenter.LapsThisLevel()) {
-			GUI.Label(new Rect (Screen.width - 300,30, 180, 30), "Lap Time: "+player.LapTime(),lapCountStyle);
+			GUI.Label(new Rect (Screen.width - 120,30, 120, 30), "Lap "+(player.laps+1) + " of "+lapsThisLevel,lapCountStyle);
+			GUI.Label(new Rect (Screen.width - 360,30, 180, 30), "Lap Time: "+player.LapTime(),lapCountStyle);
 		}
 		
 		GUI.Label(new Rect (Screen.width - 300,0, 120, 30), player.GetDashboardSpeed(),posnStyle);
@@ -91,11 +104,17 @@ public class ControlCenter : MonoBehaviour
 					instance.GetComponent<AudioSource>().Play();
 				}
 				message = "GO!";
+				
 				instance.msgStyle.normal.textColor = Color.green;
 				if(countdown <= Time.deltaTime) {
 					greenFlag=true;
-						foreach(Raceur r in Circuit.instance.field) {
+					raceInProgress=true;
+					playerTime = -1f;
+					raceMode+=1;
+					foreach(Raceur r in Circuit.instance.field) {
+						if(r.gameObject.activeInHierarchy) {
 							r.Go();
+						}
 					}
 				}
 		}
@@ -159,15 +178,23 @@ public class ControlCenter : MonoBehaviour
 		}
 		raceInProgress = false;
 		results = sortedfield;
+		//we didn't place, either in qualifying or the race, so enter a "Game Over" state
+		raceMode = 3; 
+		
 	}
 	
 	public static void Qualified(int position,ArrayList sortedfield) {
 		foreach(Raceur car in Circuit.instance.field) {
-			car.BeginShutdown();
+			if(car.gameObject.activeInHierarchy) {
+				car.BeginShutdown();
+			}
 		}
 		raceInProgress=false;
 		results = sortedfield;
 		sinkInTime+=Time.time;
+		if(raceMode == 2) { //the actual race has been run
+			raceMode = 3; //so enter a "Game Over"-ish state
+		}
 	}
 	
 	public void DisplayResults() {
@@ -177,10 +204,17 @@ public class ControlCenter : MonoBehaviour
 		foreach(Raceur r in results) {
 			string phrase = "";
 			if(r == player) {
-				phrase = "YOUR TIME:";
+				
 				playerIsIn = i+1;
+				if(playerTime < 0f) {
+					playerTime = player.TotalTime();
+				}
+				phrase = "YOUR TIME:"+FormatTime(playerTime);
 			}
-			phrase += FormatTime(r.TotalTime());
+			else 
+			{
+				phrase += FormatTime(r.TotalTime());
+			}
 			GUI.Label(new Rect (Screen.width/2 - 120,60+35*i, 200, 30), phrase,finalPosnStyle);
 			i++;
 			if(i == minimumPlace) {
@@ -189,14 +223,19 @@ public class ControlCenter : MonoBehaviour
 		}
 		//if not, show the player's time down below
 		if(playerIsIn == -1) {
-			//Debug.Log();
-			float playerTime = player.TotalTime();
-			if(playerTime == 0f) {
-				playerTime =player.ProjectedLapTime();
+			if(playerTime < 0f) {
+				playerTime = player.TotalTime();
+				if(playerTime == 0f) {
+					playerTime =player.ProjectedLapTime();
+				}
 			}
 			GUI.Label(new Rect (Screen.width/2 - 120,95+35*i, 200, 30), "Your Time:"+FormatTime(playerTime),finalPosnStyle);
 			if(qualifyMode) {
 				GUI.Label(new Rect (Screen.width/2 - 120,130+35*i, 200, 30), "Didn't qualify",finalPosnStyle);
+			}
+			else
+			{
+				GUI.Label(new Rect (Screen.width/2 - 120,130+35*i, 200, 30), "Didn't place",finalPosnStyle);
 			}
 		
 		}
@@ -282,21 +321,38 @@ public class ControlCenter : MonoBehaviour
 		 for(int i=0;i<instance.minimumPlace;i++) {
 			 startingGrid[i]=(results[i] as Raceur).name;
 		 }
-		 sinkInTime = 10f;
+		 sinkInTime = 5f;
 		 qualifyMode = false;
 		 results = null;
-		 SceneManager.LoadScene(1);
+		 SceneManager.LoadScene(2);
 		 countdown = 5f;
 		 greenFlag = false;
 	 }
 	 
 	 public static int GetGridPosition(string carName) {
-		 for(int i=0;i<instance.minimumPlace;i++){
+		 for(int i=0;i<startingGrid.Count;i++){
 			 if(startingGrid[i] == carName) {
 				 return i;
 			 }
 		 }
 		 return -1;
 	 }
+	 
+	 public void ShowInstructions() {
+		 GUI.Label(new Rect (Screen.width/2f - 90,0, 180, 30), "How to Play",instructionsStyle);
+		 GUI.Label(new Rect (Screen.width/2f - 192,40, 512, 30), "Left and Right to steer",instructionsStyle);
+		 GUI.Label(new Rect (Screen.width/2f - 192,80, 512, 30), "Forward to accelerate",instructionsStyle);
+		 GUI.Label(new Rect (Screen.width/2f - 192,120, 512, 30), "Back to accelerate",instructionsStyle);
+		 GUI.Label(new Rect (Screen.width/2f - 192,160, 512, 30), "Button stuns an opponent for 5 seconds, but this incurs a 2.5 second penalty",instructionsStyle);
+		 
+		 GUI.Label(new Rect (Screen.width/2f - 192,300, 512, 30), "Press the button to get moving",instructionsStyle);
+		 if(Input.GetKeyUp(KeyCode.Space)) {
+			 raceMode = 0;
+			 SceneManager.LoadScene(1);
+			 
+		 }
+			 
+	 }
+
 
 }

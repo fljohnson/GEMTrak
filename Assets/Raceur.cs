@@ -80,6 +80,14 @@ public class Raceur : MonoBehaviour, IComparable
 	
     //in practice, ControlCenter calls Go() on all Raceurs upon "green light"
     public virtual void Go() {
+		if(agent == null) {
+			ActualStart();
+			Debug.Log(name+":Got agent");
+			if(agent == null) {
+				Debug.Log("FAIL");
+				Debug.Break();
+			}
+		}
         agent.SetDestination(Circuit.Waypoint(nextWaypoint));
 	}
 	
@@ -251,7 +259,7 @@ public class Raceur : MonoBehaviour, IComparable
 	}
 	
 	public virtual Vector3 GetVelocity() {
-		return agent.velocity;
+		return GetComponent<NavMeshAgent>().velocity;
 	}
 	
 	protected void Fire() {
@@ -307,8 +315,8 @@ public class Raceur : MonoBehaviour, IComparable
 	public float ProjectedLapTime() {
 		
 		float timeSoFar=(float)(Time.time - lapStart)+penaltyTime;
-		Vector3 coords = Circuit.Waypoint(curWaypoint-1);
-		float divisor = Circuit.instance.LapDistance(curWaypoint-2)+HorizDistance(coords,transform.position);
+		Vector3 coords = Circuit.Waypoint(Circuit.PriorWaypointID(curWaypoint,-1));
+		float divisor = Circuit.instance.LapDistance(Circuit.PriorWaypointID(curWaypoint,-2))+HorizDistance(coords,transform.position);
 		float rv= timeSoFar*(Circuit.instance.LapDistance())/divisor;
 		
 		return rv;
