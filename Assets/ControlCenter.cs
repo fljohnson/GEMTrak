@@ -42,14 +42,15 @@ public class ControlCenter : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-		if(raceMode > 2 || player == null) {
-			return;
-		}
+		
 		if(Input.GetKey(KeyCode.Escape)) {
 			#if UNITY_EDITOR
 			UnityEditor.EditorApplication.isPlaying = false;
 			#endif
 			Application.Quit();
+		}
+		if(raceMode > 2 || player == null) {
+			return;
 		}
 		if(!greenFlag) {
 			StartRace();
