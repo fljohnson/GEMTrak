@@ -344,11 +344,17 @@ public class ControlCenter : MonoBehaviour
 		 
 		 GUI.Label(new Rect (Screen.width/2f - 120,40, 240, 30), "Player 1 controls",instructionsStyle);
 		 GUI.Label(new Rect (Screen.width/2f - 192,80, 512, 30), "Left and Right to steer",instructionsStyle);
-		 GUI.Label(new Rect (Screen.width/2f - 192,120, 512, 30), "Forward to accelerate",instructionsStyle);
-		 GUI.Label(new Rect (Screen.width/2f - 192,160, 512, 30), "Back to accelerate",instructionsStyle);
-		 GUI.Label(new Rect (Screen.width/2f - 192,220, 600, 30), "Button (any of the three) stuns an opponent for 5 seconds, but this incurs a 2.5 second penalty",instructionsStyle);
+		 /* TODO: Make resources out of these per de facto platform*/
+		 //GUI.Label(new Rect (Screen.width/2f - 192,120, 512, 30), "Forward to accelerate",instructionsStyle);
+		 GUI.Label(new Rect (Screen.width/2f - 192,120, 512, 30), "Up to accelerate",instructionsStyle);
+		 //GUI.Label(new Rect (Screen.width/2f - 192,160, 512, 30), "Back to accelerate",instructionsStyle);
+		 GUI.Label(new Rect (Screen.width/2f - 192,160, 512, 30), "Down to slow down",instructionsStyle);
 		 
-		 GUI.Label(new Rect (Screen.width/2f - 192,300, 512, 30), "Press a button to get moving",instructionsStyle);
+		 //GUI.Label(new Rect (Screen.width/2f - 192,220, 600, 30), "Button (any of the three) stuns an opponent for 5 seconds, but this incurs a 2.5-second penalty",instructionsStyle);
+		 GUI.Label(new Rect (Screen.width/2f - 192,220, 600, 30), "Space Bar stuns an opponent for 5 seconds, but this incurs a 2.5-second penalty",instructionsStyle);
+		 
+		 //GUI.Label(new Rect (Screen.width/2f - 192,300, 512, 30), "Press a button to get moving",instructionsStyle);
+		 GUI.Label(new Rect (Screen.width/2f - 192,300, 512, 30), "Press the space bar to get moving",instructionsStyle);
 		 if(UserHitFire()) {
 			 raceMode = 0;
 			 SceneManager.LoadScene(1);
